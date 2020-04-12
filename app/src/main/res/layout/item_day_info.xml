@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:orientation="vertical"
+    android:scrollbars="">
+
+
+    <TextView
+        android:id="@+id/itemDayInfoName"
+        style="@style/RegularText"
+        android:text=""
+        android:textSize="24sp" />
+
+    <ImageView
+        android:id="@+id/itemDayInfoIco"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@mipmap/icons_clear" />
+
+    <TextView
+        android:id="@+id/itemDayInfoTemperature"
+        style="@style/TemperatureText"
+        android:text="" />
+    <TextView
+        android:id="@+id/itemDayInfoHintWind"
+        style="@style/HintText"
+        android:text="" />
+    <TextView
+        android:id="@+id/itemDayInfoWindDirrection"
+        style="@style/TemperatureTextSmall"
+        android:text="" />
+    <TextView
+        android:id="@+id/itemDayInfoWind"
+        style="@style/TemperatureTextSmall"
+        android:text="" />
+    <TextView
+        android:id="@+id/itemDayInfoHintPressure"
+        style="@style/HintText"
+        android:text="" />
+    <TextView
+        android:id="@+id/itemDayInfoPressure"
+        style="@style/TemperatureTextSmall"
+        android:text="" />
+    <TextView
+        android:id="@+id/itemDayInfoHintHumidity"
+        style="@style/HintText"
+        android:text="" />
+    <TextView
+        android:id="@+id/itemDayInfoHumidity"
+        style="@style/TemperatureTextSmall"
+        android:text="" />
+
+
+</LinearLayout>

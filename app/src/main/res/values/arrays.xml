@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cityList">
+        <item>Moscow</item>
+        <item>Saint Petersburg</item>
+        <item>Velikiy Novgorod</item>
+        <item>Novosibirsk</item>
+        <item>Yekaterinburg</item>
+        <item>Kazan</item>
+        <item>Samara</item>
+        <item>Omsk</item>
+        <item>Chelyabinsk</item>
+        <item>Rostov-on-Don</item>
+        <item>Ufa</item>
+        <item>Volgograd</item>
+    </string-array>
+    <string-array name="windDirrection">
+        <item>C</item>
+        <item>C-В</item>
+        <item>В</item>
+        <item>Ю-В</item>
+        <item>Ю</item>
+        <item>Ю-З</item>
+        <item>З</item>
+        <item>С-З</item>
+        <item>C</item>
+    </string-array>
+    <string-array name="week">
+        <item>29.03</item>
+        <item>30.03</item>
+        <item>31.03</item>
+        <item>01.04</item>
+        <item>02.04</item>
+        <item>03.04</item>
+        <item>04.04</item>
+        <item>05.04</item>
+        <item>06.04</item>
+        <item>07.04</item>
+    </string-array>
+    <string-array name="temperature">
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+        <item>+5,+3,+4,+2,0,-2,-1,-5,-3,0</item>
+        <item>-7,-8,-6,-5,-3,-2,-1,-5,-8,0</item>
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+        <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
+    </string-array>
+    <string-array name="weatherIco">
+        <item>@ico</item>
+    </string-array>
+    <string-array name="cityWind">
+        <item>3 м/с, З</item>
+        <item>12 м/с, В</item>
+        <item>18 м/с, ЮЗ</item>
+        <item>2 м/с, СЗ</item>
+        <item>5 м/с, Ю</item>
+        <item>7 м/с, СЗ</item>
+        <item>4 м/с, СВ</item>
+        <item>3 м/с, З</item>
+        <item>5 м/с, Ю</item>
+        <item>4 м/с, ЮВ</item>
+        <item>Штиль</item>
+        <item>1 м/с, СЗ</item>
+    </string-array>
+    <string-array name="cityPressure">
+        <item>769 мм рт. ст.</item>
+        <item>742 мм рт. ст.</item>
+        <item>736 мм рт. ст.</item>
+        <item>789 мм рт. ст.</item>
+        <item>735 мм рт. ст.</item>
+        <item>778 мм рт. ст.</item>
+        <item>785 мм рт. ст.</item>
+        <item>768 мм рт. ст.</item>
+        <item>766 мм рт. ст.</item>
+        <item>773 мм рт. ст.</item>
+        <item>755 мм рт. ст.</item>
+        <item>763 мм рт. ст.</item>
+    </string-array>
+    <string-array name="cityWeather">
+        <item>CLEAR,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>CLOUDY,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>SNOWY,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>STORMY,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>RAINY,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>CLEAR,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>CLEAR,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>CLEAR,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>CLEAR,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>CLEAR,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>CLEAR,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+        <item>CLEAR,CLOUDY,CLOUDY,RAINY,CLEAR,CLEAR,STORMY,RAINY,CLOUDY,SNOWY</item>
+    </string-array>
+    <string-array name="weather">
+        <item>CLEAR</item>
+        <item>CLOUDY</item>
+        <item>RAINY</item>
+        <item>SNOWY</item>
+        <item>STORMY</item>
+    </string-array>
+   <string-array name="cityWaterTemperature">
+        <item>+4</item>
+        <item>+1</item>
+        <item>-4</item>
+        <item>+2</item>
+        <item>+1</item>
+        <item>+2</item>
+        <item>0</item>
+        <item>-2</item>
+        <item>+1</item>
+        <item>+2</item>
+        <item>+4</item>
+        <item>+4</item>
+    </string-array>
+</resources>

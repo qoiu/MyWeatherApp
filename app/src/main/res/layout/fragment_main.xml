@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorTextShadow"
+    android:label="@string/Moscow"
+    android:scrollbars="vertical"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/imageMain"
+        style="@style/RegularText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:cropToPadding="false"
+        android:scaleType="fitCenter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@mipmap/weather_clear" />
+
+    <TextView
+        android:id="@+id/textTemperature"
+        style="@style/MyTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="12dp"
+        android:text=""
+        android:textSize="40sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textCityName" />
+
+    <TextView
+        android:id="@+id/textCityName"
+        style="@style/MyTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="16dp"
+        android:text=""
+        app:autoSizeMaxTextSize="42sp"
+        app:autoSizeMinTextSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageMain" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:isScrollContainer="true"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageMain" />
+
+
+
+    <LinearLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageMain">
+
+        <TextView
+            style="@style/RegularText"
+            android:text=""
+            android:textSize="24sp" />
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp" />
+
+        <TextView
+            style="@style/TemperatureText"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/itemMainDayInfoHintWind"
+            style="@style/HintText"
+            android:text="@string/Wind" />
+
+        <TextView
+            android:id="@+id/itemMainDayInfoWindDirrection"
+            style="@style/TemperatureTextSmall"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/itemMainDayInfoWind"
+            style="@style/TemperatureTextSmall"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/itemMainDayInfoHintPressure"
+            style="@style/HintText"
+            android:text="@string/Pressure" />
+
+        <TextView
+            android:id="@+id/itemMainDayInfoPressure"
+            style="@style/TemperatureTextSmall"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/itemMainDayInfoHintHumidity"
+            style="@style/HintText"
+            android:text="@string/Humidity" />
+
+        <TextView
+            android:id="@+id/itemMainDayInfoHumidity"
+            style="@style/TemperatureTextSmall"
+            android:text="" />
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBarMain"
+        style="android:attr/progressBarStyle"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageMain"
+        android:visibility="gone"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
