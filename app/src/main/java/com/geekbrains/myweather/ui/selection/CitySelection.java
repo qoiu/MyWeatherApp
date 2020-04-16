@@ -77,13 +77,14 @@ public class CitySelection extends Fragment {
                     @Override
                     public void run() {
                         Log.d("CitySelection",recycleAdapter.getItemCount() + "<" + CityList.getLength());
-                        if(recycleAdapter.getItemCount() < 12)
-                        if (recycleAdapter.getItemCount() < CityList.getLength()) {
-                            if(recycleAdapter.getItemCount()==0)setRecyclerView();
-                            recycleAdapter.notifyCityChanges();
+                        if(recycleAdapter.getItemCount() < 12){
+                            if (recycleAdapter.getItemCount() < CityList.getLength()) {
+                                if(recycleAdapter.getItemCount()==0)setRecyclerView();
+                                recycleAdapter.notifyCityChanges();
+                            }
                             resetRecView();
                         }else {
-                            if(recycleAdapter.getItemCount() == 0)resetRecView();
+                            recycleAdapter.notifyCityChanges();
                         }
                     }
                 });
