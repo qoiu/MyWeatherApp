@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,30 +18,28 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.geekbrains.myweather.CityData;
 import com.geekbrains.myweather.CityList;
+import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
 import com.geekbrains.myweather.RecyclerDataAdapter;
 import com.geekbrains.myweather.Singleton;
+import com.geekbrains.myweather.ThermometerView;
 import com.geekbrains.myweather.Weather;
-import com.geekbrains.myweather.WeatherDataLoader;
 
 public class MainFragment extends Fragment {
 
-    final static String TAG = "MainActivity";
     private TextView cityName, cityTemperature;
     private TextView itemPressure, itemHumidity, itemWind, itemWindDirection;
-    private TextView itemHintPressure, itemHintHumidity, itemHintWind;
+    private TextView itemHintPressure, itemHintHumidity, itemHintWind, cityNotFound;
     private ImageView imageMain;
     private RecyclerView recyclerView;
-    ProgressBar progressBar;
-    private Handler handler=new Handler();
-    static final String DATA_KEY = "city_data";
+    private ProgressBar progressBar;
+    private Handler handler = new Handler();
     private CityData currentCity;
-    private int loadedCity;
+    private ThermometerView thermometerView;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_main, container, false);
-        return root;
+        return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
     @Override
@@ -52,7 +49,6 @@ public class MainFragment extends Fragment {
         Weather.setView(view);
         applySettings();
     }
-
 
     private void setView(View view) {
         itemHintHumidity = view.findViewById(R.id.itemMainDayInfoHintHumidity);
@@ -66,10 +62,10 @@ public class MainFragment extends Fragment {
         cityName = view.findViewById(R.id.textCityName);
         imageMain = view.findViewById(R.id.imageMain);
         recyclerView = view.findViewById(R.id.recyclerViewMain);
-        progressBar=view.findViewById(R.id.progressBarMain);
+        progressBar = view.findViewById(R.id.progressBarMain);
+        cityNotFound = view.findViewById(R.id.mainCityNotFound);
+        thermometerView = view.findViewById(R.id.mainThermometerView);
     }
-
-
 
     private void applySettings() {
         int humidity = !Singleton.getInstance().isSettingHumidity() ? View.GONE : View.VISIBLE;
@@ -84,39 +80,52 @@ public class MainFragment extends Fragment {
         itemHintPressure.setVisibility(pressure);
         cityName.setText(Singleton.getInstance().getCityName());
         currentCity = CityList.getCity(Singleton.getInstance().getCityName());
-        if (currentCity == null) {
-            progressBar.setVisibility(View.VISIBLE);
-           waitingInternetData();
+        cityNotFound.setVisibility(View.GONE);
+        if (currentCity != null && currentCity != CityList.CITY_NOT_FOUND) {
+            fillCityInfo();
         } else {
-            cityTemperature.setText(String.valueOf(currentCity.getTodayInfo().getTemperature()));
+            progressBar.setVisibility(View.VISIBLE);
+            waitingInternetData();
+        }
+    }
+
+    private void fillCityInfo() {
+        if (currentCity != CityList.CITY_NOT_FOUND) {
+            cityName.setText(currentCity.getCityName());
+            cityTemperature.setText(String.valueOf(currentCity.getTodayInfo().getFormatedTemperature()));
+            thermometerView.setTemperature(currentCity.getTodayInfo().getTemperature());
             imageMain.setImageResource(Weather.getImgFromString(currentCity.getTodayInfo().getIcoDescription().toUpperCase()));
             setRecyclerView();
         }
     }
 
-    private void waitingInternetData(){
-        new Thread(){
+    private void waitingInternetData() {
+        new Thread() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        currentCity = CityList.getCity(Singleton.getInstance().getCityName());
-                        if (currentCity == null) {
-                            waitingInternetData();
-                        } else {
+                currentCity = CityList.getCity(Singleton.getInstance().getCityName());
+                if (currentCity == null) {
+                    this.run();
+                } else {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d("MainFragment", currentCity.getCityName());
                             progressBar.setVisibility(View.GONE);
-                            cityTemperature.setText(String.valueOf(currentCity.getTodayInfo().getTemperature()));
-                            imageMain.setImageResource(Weather.getImgFromString(currentCity.getTodayInfo().getIcoDescription().toUpperCase()));
-                            setRecyclerView();
+                            if (currentCity == CityList.CITY_NOT_FOUND) {
+                                cityNotFound.setVisibility(View.VISIBLE);
+                                MainActivity.showAlert();
+                            } else {
+                                fillCityInfo();
+                            }
                         }
-                    }
-                });
+                    });
+                }
 
             }
         }.start();
@@ -128,12 +137,6 @@ public class MainFragment extends Fragment {
                 LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "Stop");
     }
 
     @Override

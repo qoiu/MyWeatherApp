@@ -1,6 +1,5 @@
 package com.geekbrains.myweather;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +30,7 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.itemName.setText(weatherList[position].getDate());
         holder.itemIco.setImageResource(city.getForecastInfo(position).getIco());
-        holder.itemTemperature.setText(city.getForecastInfo(position).getTemperature());
+        holder.itemTemperature.setText(city.getForecastInfo(position).getFormatedTemperature());
         holder.itemHumidity.setText(city.getForecastInfo(position).getHumidity());
         holder.itemPressure.setText(city.getForecastInfo(position).getPressure());
         holder.itemWindSpeed.setText(city.getForecastInfo(position).getWindSpeed());

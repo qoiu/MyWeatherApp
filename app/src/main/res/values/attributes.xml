@@ -1,2 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <declare-styleable name="ThermometerView">
+        <attr name="thermometer_color" format="color" />
+        <attr name="hot_color" format="color" />
+        <attr name="cold_color" format="color" />
+        <attr name="temperature_value" format="integer" />
+    </declare-styleable>
+</resources>

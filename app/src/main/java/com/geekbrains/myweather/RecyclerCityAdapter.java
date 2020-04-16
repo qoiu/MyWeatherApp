@@ -46,7 +46,7 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
         CityData city = CityList.getCity(cityName[position]);
         holder.cityNameText.setText(cityName[position]);
         holder.imgWeather.setImageResource(city.getTodayInfo().getIco());
-        holder.cityTemperatureText.setText(city.getTodayInfo().getTemperature());
+        holder.cityTemperatureText.setText(city.getTodayInfo().getFormatedTemperature());
         highlightSelectedPosition(holder, position);
     }
 

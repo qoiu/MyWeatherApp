@@ -26,7 +26,7 @@ public class WeatherInfo {
     }
 
 
-    public String getTemperature() {
+    public String getFormatedTemperature() {
         if(Singleton.getInstance().isSettingInCelsius()){
             return String.format(Locale.getDefault(), "%+.1f" +
                     "\u2103", temperature);
@@ -36,6 +36,10 @@ public class WeatherInfo {
                     "\u2109", temperatureFahr);
         }
 
+    }
+
+    public double getTemperature() {
+        return temperature;
     }
 
     public boolean dateLessThanNow() {

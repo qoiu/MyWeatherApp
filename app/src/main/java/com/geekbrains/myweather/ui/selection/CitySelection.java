@@ -15,8 +15,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.geekbrains.myweather.CityData;
 import com.geekbrains.myweather.CityList;
 import com.geekbrains.myweather.MainActivity;
@@ -25,6 +23,7 @@ import com.geekbrains.myweather.RecyclerCityAdapter;
 import com.geekbrains.myweather.Singleton;
 import com.geekbrains.myweather.WeatherDataLoader;
 import com.google.android.material.button.MaterialButton;
+import java.util.Objects;
 
 public class CitySelection extends Fragment {
     private MaterialButton btnSaveCity;
@@ -65,7 +64,7 @@ public class CitySelection extends Fragment {
     }
 
     private void resetRecView() {
-        new Thread() {
+        Thread t=new Thread() {
             @Override
             public void run() {
                 try {
@@ -78,16 +77,19 @@ public class CitySelection extends Fragment {
                     @Override
                     public void run() {
                         Log.d("CitySelection",recycleAdapter.getItemCount() + "<" + CityList.getLength());
+                        if(recycleAdapter.getItemCount() < 12)
                         if (recycleAdapter.getItemCount() < CityList.getLength()) {
                             if(recycleAdapter.getItemCount()==0)setRecyclerView();
                             recycleAdapter.notifyCityChanges();
+                            resetRecView();
+                        }else {
+                            if(recycleAdapter.getItemCount() == 0)resetRecView();
                         }
-
-                        resetRecView();
                     }
                 });
             }
-        }.start();
+        };
+        t.start();
     }
 
     private void setRecyclerView() {
@@ -114,7 +116,7 @@ public class CitySelection extends Fragment {
                 Singleton.getInstance().setCityName(etInputCity.getText().toString());
                 Singleton.getInstance().setCity(new CityData(Singleton.getInstance().getCityName()));
                 WeatherDataLoader.addCityFromWeatherApi(etInputCity.getText().toString());
-                ((MainActivity) getActivity()).goHome();
+                ((MainActivity) Objects.requireNonNull(getActivity())).goHome();
             }
         });
     }
