@@ -2,8 +2,6 @@ package com.geekbrains.myweather;
 
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,7 +12,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
-import java.util.Locale;
 
 public class WeatherDataLoader {
     private static final String OPEN_WEATHER_APP_KEY = "f3b8d2a726a6a983d8606e27c29b9566";
@@ -34,7 +31,9 @@ public class WeatherDataLoader {
                         @Override
                         public void run() {
                             if (jsonObject != null) {
-                                CityList.addCity(fillWeather(jsonObject, cityName));
+                                CityList.addCity(fillWeather(jsonObject));
+                            }else {
+                                CityList.addCity(cityName);
                             }
                         }
                     });
@@ -71,10 +70,11 @@ public class WeatherDataLoader {
             }
         }
 
-        private static CityData fillWeather (JSONObject jsonObject, String cityName){
+        private static CityData fillWeather (JSONObject jsonObject){
             if (jsonObject != null) {
-                CityData city = new CityData(cityName);
                 try {
+                    String cityName=jsonObject.getJSONObject("city").getString("name");
+                    CityData city = new CityData(cityName);
                     JSONArray jsonArray = jsonObject.getJSONArray("list");
                     for (int i = 0; i < jsonArray.length(); i++) {
                         WeatherInfo weather = new WeatherInfo();
@@ -105,10 +105,10 @@ public class WeatherDataLoader {
                             city.addWeather(weather);
                         }
                     }
+                    return city;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                return city;
             }
             return null;
         }

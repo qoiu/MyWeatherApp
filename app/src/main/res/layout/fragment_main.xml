@@ -21,6 +21,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@mipmap/weather_clear" />
 
+    <com.geekbrains.myweather.ThermometerView
+        android:id="@+id/mainThermometerView"
+        android:layout_width="50dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageMain"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <TextView
         android:id="@+id/textTemperature"
         style="@style/MyTextStyle"
@@ -54,8 +63,6 @@
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageMain" />
-
-
 
     <LinearLayout
         android:id="@+id/mainLayout"
@@ -122,6 +129,18 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageMain"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/mainCityNotFound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        style="@style/MyTextStyle"
+        android:text="@string/city_not_found"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageMain"

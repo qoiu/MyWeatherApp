@@ -7,7 +7,7 @@ public class CityData implements Serializable {
     private String cityName;
     private WeatherInfo todayInfo;
     private ArrayList<WeatherInfo> forecastInfo;
-    String lastDate;
+    private boolean exist;
 
     public CityData(String cityName){
         this.cityName=cityName;
@@ -16,7 +16,6 @@ public class CityData implements Serializable {
 
     void addWeather(WeatherInfo weatherInfo){
         forecastInfo.add(weatherInfo);
-        lastDate=String.valueOf(weatherInfo.getDate());
     }
 
     WeatherInfo getForecastInfo(int day) {
@@ -41,5 +40,13 @@ public class CityData implements Serializable {
 
     public void setTodayInfo(WeatherInfo todayInfo) {
         this.todayInfo = todayInfo;
+    }
+
+    public boolean isExist() {
+        return exist;
+    }
+
+    public void setExist(boolean exist) {
+        this.exist = exist;
     }
 }

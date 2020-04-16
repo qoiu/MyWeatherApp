@@ -8,12 +8,11 @@
     <fragment
         android:id="@+id/nav_home"
         android:name="com.geekbrains.myweather.ui.main.MainFragment"
-        android:label="@string/menu_home"
+        android:label="@string/menu_forecast"
         tools:layout="@layout/fragment_main">
-
         <action
-            android:id="@+id/action_HomeFragment_to_HomeSecondFragment"
-            app:destination="@id/nav_home_second" />
+            android:id="@+id/action_nav_home_to_nav_city_selection"
+            app:destination="@id/nav_cities" />
     </fragment>
     <fragment
         android:id="@+id/nav_home_second"
@@ -39,9 +38,11 @@
             app:destination="@id/nav_home" />
     </fragment>
 
-    <fragment android:id="@+id/nav_city_selection"
+    <fragment android:id="@+id/nav_cities"
         android:name="com.geekbrains.myweather.ui.selection.CitySelection"
-        android:label="@string/citySelection"
-        tools:layout="@layout/fragment_city_selection"/>
+        android:label="@string/menu_city"
+        tools:layout="@layout/fragment_city_selection">
+
+    </fragment>
 
 </navigation>
