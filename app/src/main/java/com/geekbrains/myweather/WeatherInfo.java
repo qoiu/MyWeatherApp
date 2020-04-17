@@ -16,12 +16,12 @@ public class WeatherInfo {
     private double windSpeed;
     private String icoDescription;
 
-    public String getDate() {
+    String getDate() {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.US);
         return dateFormat.format(date);
     }
 
-    public void setDate(Date date) {
+    void setDate(Date date) {
         this.date = date;
     }
 
@@ -42,20 +42,20 @@ public class WeatherInfo {
         return temperature;
     }
 
-    public boolean dateLessThanNow() {
+    boolean dateLessThanNow() {
         Date d = new Date();
         return this.date.compareTo(d) > 0;
     }
 
-    public void setTemperature(double temperature) {
+    void setTemperature(double temperature) {
         this.temperature = temperature;
     }
 
-    public int getIco() {
+    int getIco() {
         return ico;
     }
 
-    public String getHour() {
+    String getHour() {
         DateFormat dateFormat = new SimpleDateFormat("HH", Locale.US);
         return dateFormat.format(date);
     }
@@ -64,12 +64,12 @@ public class WeatherInfo {
         return icoDescription;
     }
 
-    public void setIcoDescription(String icoDescription) {
+    void setIcoDescription(String icoDescription) {
         this.icoDescription = icoDescription;
         this.ico = Weather.getIcoFromString(icoDescription.toUpperCase());
     }
 
-    public String getPressure() {
+    String getPressure() {
         return String.format(Locale.getDefault(), "%+.1f%n", pressure / 1.33333f);
     }
 

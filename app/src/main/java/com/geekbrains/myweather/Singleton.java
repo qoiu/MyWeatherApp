@@ -9,7 +9,6 @@ public class Singleton implements Serializable {
     private boolean settingPressure;
     private boolean settingHumidity;
     private boolean settingInCelsius=true;
-    private CityData city;
     private String cityName="Москва";
 
     private Singleton() {
@@ -68,13 +67,5 @@ public class Singleton implements Serializable {
 
     public String getCityName() {
         return cityName;
-    }
-
-    public CityData getCity() {
-        return city;
-    }
-
-    public void setCity(CityData city) {
-        this.city = city;
     }
 }

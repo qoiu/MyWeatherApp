@@ -3,7 +3,6 @@ package com.geekbrains.myweather.ui.settings;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,10 +12,11 @@ import android.view.ViewGroup;
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
 import com.geekbrains.myweather.Singleton;
-import com.geekbrains.myweather.ui.main.MainFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
+
+import java.util.Objects;
 
 public class Settings extends Fragment {
 
@@ -26,8 +26,7 @@ public class Settings extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_settings, container, false);
-        return root;
+        return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 
     @Override
@@ -43,7 +42,7 @@ public class Settings extends Fragment {
             @Override
             public void onClick(View v) {
                 saveElementsState();
-                ((MainActivity)getActivity()).goHome();
+                ((MainActivity) Objects.requireNonNull(getActivity())).goHome();
             }
         });
     }
