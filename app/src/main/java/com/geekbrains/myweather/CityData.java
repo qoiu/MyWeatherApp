@@ -11,7 +11,7 @@ public class CityData implements Serializable {
 
     public CityData(String cityName){
         this.cityName=cityName;
-        forecastInfo=new ArrayList<WeatherInfo>();
+        forecastInfo=new ArrayList<>();
     }
 
     void addWeather(WeatherInfo weatherInfo){
@@ -38,7 +38,7 @@ public class CityData implements Serializable {
         return todayInfo;
     }
 
-    public void setTodayInfo(WeatherInfo todayInfo) {
+    void setTodayInfo(WeatherInfo todayInfo) {
         this.todayInfo = todayInfo;
     }
 

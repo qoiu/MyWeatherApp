@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private NavController navController;
     private static AlertDialog alert;
-    public static final int CITY_LENGTH_BASE= 12;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (!query.equals("")) {
                     Singleton.getInstance().setCityName(query);
-                    Singleton.getInstance().setCity(new CityData(Singleton.getInstance().getCityName()));
                     WeatherDataLoader.addCityFromWeatherApi(query);
                     navController.navigate(R.id.nav_home);
                     searchText.setQuery("", false);

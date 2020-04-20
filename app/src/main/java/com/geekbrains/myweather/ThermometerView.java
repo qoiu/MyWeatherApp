@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -85,7 +84,7 @@ public class ThermometerView extends View {
                 width - padding,
                 height - padding *2);
         temperatureValueRectangle.set((int)(padding *1.2),
-                (int)((padding *1.4)+(rateHeight-(rateHeight*((double) Math.abs(temperature) /(double)30)))),
+                (int)((padding *1.4)+(rateHeight-(rateHeight*(Math.abs(temperature) /(double)30)))),
                 (int)(width - padding *1.2),
                 height - 2 * padding);
         for(int i=0;i<addRectangle.length;i++){
@@ -113,8 +112,8 @@ public class ThermometerView extends View {
     }
 
     private int getBlue(){
-        int b=(int)((temperature<10)?Math.abs(temperature-20)*8.5:0);
-        return Math.min(b, 255);
+        int blue=(int)((temperature<10)?Math.abs(temperature-20)*8.5:0);
+        return Math.min(blue, 255);
     }
 
     private int getGreen(){

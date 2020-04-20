@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class CityList {
-    private static HashMap<String, CityData> cityList = new HashMap<String, CityData>();
+    private static HashMap<String, CityData> cityList = new HashMap<>();
     public static final CityData CITY_NOT_FOUND=new CityData("NotFound");
 
     static void addCity(CityData city) {

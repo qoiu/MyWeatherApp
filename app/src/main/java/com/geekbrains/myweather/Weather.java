@@ -32,12 +32,12 @@ public class Weather {
         windDirrection= view.getResources().getStringArray(R.array.windDirrection);
     }
 
-    public static String getWindDirrection(int ang){
+    static String getWindDirrection(int ang){
         int id=Math.round(ang/45f);
         return windDirrection[id];
     }
 
-    public static int getIcoFromString(String string) {
+    static int getIcoFromString(String string) {
         try{
             return ico[WeatherType.valueOf(string).ordinal()];
         }catch (IllegalArgumentException e){
