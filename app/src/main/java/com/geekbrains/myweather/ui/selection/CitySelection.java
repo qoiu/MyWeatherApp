@@ -6,23 +6,24 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.geekbrains.myweather.CityData;
-import com.geekbrains.myweather.CityList;
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
 import com.geekbrains.myweather.RecyclerCityAdapter;
 import com.geekbrains.myweather.Singleton;
-import com.geekbrains.myweather.WeatherDataLoader;
+import com.geekbrains.myweather.WeatherDataService;
 import com.google.android.material.button.MaterialButton;
+
 import java.util.Objects;
 
 public class CitySelection extends Fragment {
@@ -32,7 +33,6 @@ public class CitySelection extends Fragment {
     private TextView textInformation;
     private ProgressBar progressBar;
     private RecyclerCityAdapter recycleAdapter;
-    private static Handler handler = new Handler();
 
     @Nullable
     @Override
@@ -47,7 +47,6 @@ public class CitySelection extends Fragment {
         setSaveCityName();
     }
 
-
     private void setView(View view) {
         recyclerView = view.findViewById(R.id.recyclerCityInfo);
         btnSaveCity = view.findViewById(R.id.btnSaveCity);
@@ -56,41 +55,7 @@ public class CitySelection extends Fragment {
         textInformation = view.findViewById(R.id.textInformation);
         recycleAdapter = new RecyclerCityAdapter();
         btnSaveCity.setEnabled(false);
-        if (CityList.getLength() > 0) {
-            setRecyclerView();
-        } else {
-            resetRecView();
-        }
-    }
-
-    private void resetRecView() {
-        Thread t=new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    Log.w("CitySelection ", e);
-                }
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d("CitySelection",recycleAdapter.getItemCount() + "<" + CityList.getLength());
-                        if(recycleAdapter.getItemCount() < 12){
-                            if (recycleAdapter.getItemCount() < CityList.getLength()) {
-                                if(recycleAdapter.getItemCount()==0)setRecyclerView();
-                                recycleAdapter.notifyCityChanges();
-                            }
-                            resetRecView();
-                        }else {
-                            recycleAdapter.notifyCityChanges();
-                        }
-                    }
-                });
-            }
-        };
-        t.start();
+        setRecyclerView();
     }
 
     private void setRecyclerView() {
@@ -115,10 +80,29 @@ public class CitySelection extends Fragment {
             @Override
             public void onClick(View v) {
                 Singleton.getInstance().setCityName(etInputCity.getText().toString());
-                Singleton.getInstance().setCity(new CityData(Singleton.getInstance().getCityName()));
-                WeatherDataLoader.addCityFromWeatherApi(etInputCity.getText().toString());
+                WeatherDataService.startWeatherDataService(getContext(), etInputCity.getText().toString());
                 ((MainActivity) Objects.requireNonNull(getActivity())).goHome();
             }
         });
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getActivity().registerReceiver(dataLoadedReceiver, new IntentFilter(MainActivity.BROADCAST_ACTION_CITY_LOADED));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getActivity().unregisterReceiver(dataLoadedReceiver);
+    }
+
+    private BroadcastReceiver dataLoadedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (recycleAdapter.getItemCount() == 0) setRecyclerView();
+            recycleAdapter.notifyCityChanges();
+        }
+    };
 }

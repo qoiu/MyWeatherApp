@@ -1,8 +1,11 @@
 package com.geekbrains.myweather.ui.main;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,7 +50,6 @@ public class MainFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setView(view);
         Weather.setView(view);
-        applySettings();
     }
 
     private void setView(View view) {
@@ -85,7 +87,6 @@ public class MainFragment extends Fragment {
             fillCityInfo();
         } else {
             progressBar.setVisibility(View.VISIBLE);
-            waitingInternetData();
         }
     }
 
@@ -97,38 +98,6 @@ public class MainFragment extends Fragment {
             imageMain.setImageResource(Weather.getImgFromString(currentCity.getTodayInfo().getIcoDescription().toUpperCase()));
             setRecyclerView();
         }
-    }
-
-    private void waitingInternetData() {
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                currentCity = CityList.getCity(Singleton.getInstance().getCityName());
-                if (currentCity == null) {
-                    this.run();
-                } else {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d("MainFragment", currentCity.getCityName());
-                            progressBar.setVisibility(View.GONE);
-                            if (currentCity == CityList.CITY_NOT_FOUND) {
-                                cityNotFound.setVisibility(View.VISIBLE);
-                                MainActivity.showAlert();
-                            } else {
-                                fillCityInfo();
-                            }
-                        }
-                    });
-                }
-
-            }
-        }.start();
     }
 
     private void setRecyclerView() {
@@ -144,4 +113,29 @@ public class MainFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         applySettings();
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getActivity().registerReceiver(dataLoadedReceiver, new IntentFilter(MainActivity.BROADCAST_ACTION_CITY_LOADED));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getActivity().unregisterReceiver(dataLoadedReceiver);
+    }
+
+    private BroadcastReceiver dataLoadedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            currentCity = CityList.getCity(Singleton.getInstance().getCityName());
+            progressBar.setVisibility(View.GONE);
+            if (currentCity == CityList.CITY_NOT_FOUND || currentCity == null) {
+                MainActivity.showAlert();
+            } else {
+                fillCityInfo();
+            }
+        }
+    };
 }

@@ -1,12 +1,17 @@
 package com.geekbrains.myweather;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.navigation.NavController;
@@ -18,8 +23,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String BROADCAST_ACTION_CITY_LOADED = "com.geekbrains.myweather.cityDataChanged";
     private AppBarConfiguration mAppBarConfiguration;
-    private NavController navController;
+    private static NavController navController;
     private static AlertDialog alert;
 
     @Override
@@ -42,14 +48,20 @@ public class MainActivity extends AppCompatActivity {
         navController.navigate(R.id.nav_cities);
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
+        return super.onCreateView(parent, name, context, attrs);
+    }
+
     public static void showAlert(){
         alert.show();
     }
 
     private void importCityInfo() {
         String[] cityList = getResources().getStringArray(R.array.cityList);
-        for (String s : cityList) {
-            WeatherDataLoader.addCityFromWeatherApi(s);
+        for (String city : cityList) {
+            WeatherDataService.startWeatherDataService(MainActivity.this,city);
         }
     }
 
@@ -59,17 +71,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void createAlertDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        // в билдере указываем заголовок окна (можно указывать как ресурс, так и строку)
         builder.setTitle(R.string.title_dialog)
-                // указываем сообщение в окне (также есть вариант со строковым параметром)
                 .setMessage(R.string.city_not_found)
-                // можно указать и пиктограмму
                 .setIcon(R.mipmap.ic_launcher_round)
-                // из этого окна нельзя выйти кнопкой back
                 .setCancelable(false)
-                // устанавливаем кнопку (название кнопки также можно задавать строкой)
                 .setPositiveButton(R.string.yes,
-                        // Ставим слушатель, нажатие будем обрабатывать
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 navController.navigate(R.id.nav_cities);
@@ -77,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
                         });
         alert = builder.create();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -89,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 if (!query.equals("")) {
                     Singleton.getInstance().setCityName(query);
-                    WeatherDataLoader.addCityFromWeatherApi(query);
+                    WeatherDataService.startWeatherDataService(MainActivity.this,query);
                     navController.navigate(R.id.nav_home);
                     searchText.setQuery("", false);
                     searchText.clearFocus();
