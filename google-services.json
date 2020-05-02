@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "258082276830",
+    "firebase_url": "https://myweather-ac9c4.firebaseio.com",
+    "project_id": "myweather-ac9c4",
+    "storage_bucket": "myweather-ac9c4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:258082276830:android:d51755a4b88beadd1cc94f",
+        "android_client_info": {
+          "package_name": "com.geekbrains.myweather"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "258082276830-92pdokdp2v4t8en0m618asqucenmkqoc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnZDvRbs6bwClObhfhjqsb9_ode7yK7dg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "258082276830-92pdokdp2v4t8en0m618asqucenmkqoc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
