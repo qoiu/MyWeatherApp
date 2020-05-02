@@ -12,19 +12,19 @@
     <ImageView
         android:id="@+id/imageMain"
         style="@style/RegularText"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
         android:adjustViewBounds="true"
         android:cropToPadding="false"
-        android:scaleType="fitCenter"
+        android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@mipmap/weather_clear" />
 
     <com.geekbrains.myweather.ThermometerView
         android:id="@+id/mainThermometerView"
-        android:layout_width="50dp"
-        android:layout_height="200dp"
+        android:layout_width="40dp"
+        android:layout_height="150dp"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/imageMain"
@@ -89,6 +89,7 @@
         <TextView
             android:id="@+id/itemMainDayInfoHintWind"
             style="@style/HintText"
+            android:background="@color/colorBackground"
             android:text="@string/Wind" />
 
         <TextView
@@ -104,6 +105,7 @@
         <TextView
             android:id="@+id/itemMainDayInfoHintPressure"
             style="@style/HintText"
+            android:background="@color/colorBackground"
             android:text="@string/Pressure" />
 
         <TextView
@@ -114,6 +116,7 @@
         <TextView
             android:id="@+id/itemMainDayInfoHintHumidity"
             style="@style/HintText"
+            android:background="@color/colorBackground"
             android:text="@string/Humidity" />
 
         <TextView

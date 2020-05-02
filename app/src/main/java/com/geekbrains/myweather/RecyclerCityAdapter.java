@@ -9,21 +9,32 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.geekbrains.myweather.rest.model.WeatherInfo;
+
+import java.util.List;
+
 
 public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapter.ViewHolder> {
-    private String[] cityName;
     private OnItemClickListener itemClickListener;
     private int currentSelection;
+    private List<WeatherInfo> cities;
 
-    public RecyclerCityAdapter() {
-        cityName = CityList.getSortedCityNames();
+    public RecyclerCityAdapter(int sort) {
+        switch (sort){
+            case 0:
+                cities= App.getInstance().getEducationDao().getAllCities();
+                break;
+            case 1:
+                cities= App.getInstance().getEducationDao().getSortedTemperature();
+                break;
+            case 2:
+                cities= App.getInstance().getEducationDao().getSortedDate();
+                break;
+            case 3:
+                cities= App.getInstance().getEducationDao().getSortedCityName();
+                break;
+        }
     }
-
-    public void notifyCityChanges(){
-        cityName = CityList.getSortedCityNames();
-        notifyDataSetChanged();
-    }
-
 
     public interface OnItemClickListener {
         void OnItemClick(View view, int position);
@@ -43,13 +54,12 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        CityData city = CityList.getCity(cityName[position]);
-        holder.cityNameText.setText(cityName[position]);
-        holder.imgWeather.setImageResource(city.getTodayInfo().getIco());
-        holder.cityTemperatureText.setText(city.getTodayInfo().getFormatedTemperature());
+        holder.cityNameText.setText(cities.get(position).cityName);
+        holder.cityTemperature.setText(cities.get(position).getTemperature());
+        holder.cityWeatherImg.setImageResource(Weather.getIcoFromString(cities.get(position).clouds));
+        holder.cityDate.setText(Weather.convDateToString(cities.get(position).date));
         highlightSelectedPosition(holder, position);
     }
-
 
     private void highlightSelectedPosition(ViewHolder holder, final int position) {
         if (currentSelection == position) {
@@ -63,34 +73,30 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
 
     @Override
     public int getItemCount() {
-        return cityName == null ? 0 : cityName.length;
+        return cities == null ? 0 : cities.size();
     }
 
     class ViewHolder extends RecyclerDataAdapter.ViewHolder {
-        private TextView cityNameText, cityTemperatureText;
-        private ImageView imgWeather;
-
+        private TextView cityNameText,cityTemperature,cityDate;
+        private ImageView cityWeatherImg;
         ViewHolder(@NonNull final View itemView) {
             super(itemView);
             setViews(itemView);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (itemClickListener != null) {
-                        currentSelection = getAdapterPosition();
-                        Singleton.getInstance().setCityName(cityName[currentSelection]);
-                        itemClickListener.OnItemClick(itemView, getAdapterPosition());
-                        notifyDataSetChanged();
-                    }
+            itemView.setOnClickListener(v -> {
+                if (itemClickListener != null) {
+                    currentSelection = getAdapterPosition();
+                    SettingsSingleton.getInstance().setCityName(cities.get(currentSelection).cityName);
+                    itemClickListener.OnItemClick(itemView, getAdapterPosition());
+                    notifyDataSetChanged();
                 }
             });
         }
 
         private void setViews(View item) {
+            cityDate=item.findViewById(R.id.itemCityInfoDate);
             cityNameText = item.findViewById(R.id.itemCityName);
-            cityTemperatureText = item.findViewById(R.id.itemDayCityTemperature);
-            imgWeather = item.findViewById(R.id.itemCityInfoIco);
+            cityTemperature=item.findViewById(R.id.itemCityInfoTemperature);
+            cityWeatherImg=item.findViewById(R.id.itemCityInfoIco);
         }
     }
 }

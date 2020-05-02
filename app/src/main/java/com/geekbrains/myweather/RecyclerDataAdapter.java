@@ -8,14 +8,19 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.geekbrains.myweather.rest.entities.WeatherListArray;
+import com.geekbrains.myweather.rest.entities.WeatherRequestRestModel;
+import java.util.ArrayList;
 
 public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapter.ViewHolder> {
-    private CityData city;
-    private WeatherInfo[] weatherList;
+    private ArrayList<WeatherListArray> weatherList=new ArrayList<>();
 
-    public RecyclerDataAdapter(CityData city) {
-        this.city = city;
-        weatherList = city.getWeatherListByDay();
+    public RecyclerDataAdapter(WeatherRequestRestModel body) {
+        for (WeatherListArray array: body.listArray){
+            if (array.getHour().equals("12")){
+                weatherList.add(array);
+            }
+        }
     }
 
     @NonNull
@@ -28,22 +33,23 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.itemName.setText(weatherList[position].getDate());
-        holder.itemIco.setImageResource(city.getForecastInfo(position).getIco());
-        holder.itemTemperature.setText(city.getForecastInfo(position).getFormatedTemperature());
-        holder.itemHumidity.setText(city.getForecastInfo(position).getHumidity());
-        holder.itemPressure.setText(city.getForecastInfo(position).getPressure());
-        holder.itemWindSpeed.setText(city.getForecastInfo(position).getWindSpeed());
-        holder.itemWindDirection.setText(city.getForecastInfo(position).getWindDirection());
-        if (!Singleton.getInstance().isSettingHumidity()) {
+        WeatherListArray posWeather = weatherList.get(position);
+        holder.itemName.setText(posWeather.getDate());
+        holder.itemIco.setImageResource(Weather.getIcoFromString(posWeather.weatherExtraData[0].main));
+        holder.itemTemperature.setText(posWeather.weatherMainData.getTemperature());
+        holder.itemHumidity.setText(posWeather.weatherMainData.getHumidity());
+        holder.itemPressure.setText(posWeather.weatherMainData.getPressure());
+        holder.itemWindSpeed.setText(posWeather.windRestModel.getWindSpeed());
+        holder.itemWindDirection.setText(posWeather.windRestModel.getWindDirection());
+        if (!SettingsSingleton.getInstance().isSettingHumidity()) {
             holder.hintHumidity.setVisibility(View.GONE);
             holder.itemHumidity.setVisibility(View.GONE);
         }
-        if (!Singleton.getInstance().isSettingPressure()) {
+        if (!SettingsSingleton.getInstance().isSettingPressure()) {
             holder.hintPressure.setVisibility(View.GONE);
             holder.itemPressure.setVisibility(View.GONE);
         }
-        if (!Singleton.getInstance().isSettingWnd()) {
+        if (!SettingsSingleton.getInstance().isSettingWnd()) {
             holder.itemWindDirection.setVisibility(View.GONE);
             holder.itemWindSpeed.setVisibility(View.GONE);
             holder.hintWind.setVisibility(View.GONE);
@@ -52,7 +58,7 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
 
     @Override
     public int getItemCount() {
-        return weatherList == null ? 0 : weatherList.length;
+        return weatherList == null ? 0 : weatherList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -72,7 +78,7 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
             itemPressure = view.findViewById(R.id.itemDayInfoPressure);
             itemHumidity = view.findViewById(R.id.itemDayInfoHumidity);
             itemWindSpeed = view.findViewById(R.id.itemDayInfoWind);
-            itemWindDirection = view.findViewById(R.id.itemDayInfoWindDirrection);
+            itemWindDirection = view.findViewById(R.id.itemDayInfoWindDirection);
             hintHumidity = view.findViewById(R.id.itemDayInfoHintHumidity);
             hintWind = view.findViewById(R.id.itemDayInfoHintWind);
             hintPressure = view.findViewById(R.id.itemDayInfoHintPressure);

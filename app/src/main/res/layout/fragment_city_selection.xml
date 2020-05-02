@@ -6,48 +6,61 @@
     android:orientation="vertical"
     tools:context=".ui.selection.CitySelection">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/inputText"
+        style="@style/CityInfoStyle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_weight="4"
+        android:ems="10"
+        android:hint="@string/inputCityName"
+        android:inputType="textPersonName" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/inputText"
-            style="@style/CityInfoStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:ems="10"
-            android:hint="@string/inputCityName"
-            android:inputType="textPersonName" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveCity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/saveCityName"/>
-
-    </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerCityInfo"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="gone"/>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="80dp" />
-
-    <TextView
-        android:id="@+id/textInformation"
-        android:layout_width="match_parent"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveCity"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:text="@string/internet_connection" />
+        android:text="@string/saveCityName"/>
 
+  </LinearLayout>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSortTemperature"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="4"
+        android:text="@string/temperature_sort"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSortName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:text="@string/name_sort"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSortDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:text="@string/date_sort"/>
+
+  </LinearLayout>
+
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/recyclerCityInfo"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical"/>
 
 </LinearLayout>

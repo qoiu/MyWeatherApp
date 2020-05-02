@@ -31,9 +31,20 @@
     <string name="settings">Settings</string>
     <string name="menu_settings">Settings</string>
     <string name="citySelection">Chose a city</string>
-    <string name="internet_connection">Ожидаем подключения к интернету...</string>
-    <string name="city_not_found">City not found...</string>
+    <string name="internet_connection">Ожидаем подключения к интернету…</string>
+    <string name="city_not_found">City not found…</string>
     <string name="title_dialog">Warning</string>
     <string name="yes">Ok</string>
     <string name="message_dialog">City not found</string>
+    <string name="connection_error_title">Connection error</string>
+    <string name="connection_error_msg">We have some problems with internet connection</string>
+    <string name="connection_error_btn">Try another city…</string>
+    <string name="connection_auth_msg">Problems with service authorization \nApplication will be closed</string>
+    <string name="connection_auth_title">Authorization problems</string>
+    <string name="okay">Got it</string>
+    <string name="connection_city_wrong_msg">Please enter correct city</string>
+    <string name="connection_city_wrong_title">" not found"</string>
+    <string name="temperature_sort">Temperature</string>
+    <string name="name_sort">Name</string>
+    <string name="date_sort">Date</string>
 </resources>

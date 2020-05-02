@@ -4,19 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import androidx.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
-import com.geekbrains.myweather.Singleton;
+import com.geekbrains.myweather.SettingsSingleton;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
-
-import java.util.Objects;
 
 public class Settings extends Fragment {
 
@@ -38,12 +37,9 @@ public class Settings extends Fragment {
     }
 
     private void setSettingsSaveBtn() {
-        btnSaveSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveElementsState();
-                ((MainActivity) Objects.requireNonNull(getActivity())).goHome();
-            }
+        btnSaveSettings.setOnClickListener(v -> {
+            saveElementsState();
+            getActivity().onBackPressed();
         });
     }
 
@@ -64,14 +60,14 @@ public class Settings extends Fragment {
     }
 
     private void setElements() {
-        swNight.setChecked(Singleton.getInstance().isSettingNightMode());
-        swWind.setChecked(Singleton.getInstance().isSettingWnd());
-        swPressure.setChecked(Singleton.getInstance().isSettingPressure());
-        swHumidity.setChecked(Singleton.getInstance().isSettingHumidity());
-        rbCelsius.setChecked(Singleton.getInstance().isSettingInCelsius());
-        rbFahrenheit.setChecked(!Singleton.getInstance().isSettingInCelsius());
+        swNight.setChecked(SettingsSingleton.getInstance().isSettingNightMode());
+        swWind.setChecked(SettingsSingleton.getInstance().isSettingWnd());
+        swPressure.setChecked(SettingsSingleton.getInstance().isSettingPressure());
+        swHumidity.setChecked(SettingsSingleton.getInstance().isSettingHumidity());
+        rbCelsius.setChecked(!SettingsSingleton.getInstance().isSettingInFahrenheit());
+        rbFahrenheit.setChecked(SettingsSingleton.getInstance().isSettingInFahrenheit());
+        rbCelsius.setChecked(!SettingsSingleton.getInstance().isSettingInFahrenheit());
     }
-
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -80,10 +76,31 @@ public class Settings extends Fragment {
     }
 
     private void saveElementsState() {
-        Singleton.getInstance().setSettingNightMode(swNight.isChecked());
-        Singleton.getInstance().setSettingPressure(swPressure.isChecked());
-        Singleton.getInstance().setSettingWnd(swWind.isChecked());
-        Singleton.getInstance().setSettingHumidity(swHumidity.isChecked());
-        Singleton.getInstance().setSettingInCelsius(rbCelsius.isChecked());
+        SettingsSingleton.getInstance().setSettingNightMode(swNight.isChecked());
+        SettingsSingleton.getInstance().setSettingPressure(swPressure.isChecked());
+        SettingsSingleton.getInstance().setSettingWnd(swWind.isChecked());
+        SettingsSingleton.getInstance().setSettingHumidity(swHumidity.isChecked());
+        SettingsSingleton.getInstance().setSettingInFahrenheit(!rbCelsius.isChecked());
+        SharedPreferences defaultPrefs =
+                PreferenceManager.getDefaultSharedPreferences(requireActivity().getApplicationContext());
+        savePreference(defaultPrefs);
+    }
+
+    private void savePreference(SharedPreferences sharedPreferences) {
+        String[] keys = {"night", "pressure", "wind", "humidity", "celsius"};
+        boolean[] values = {
+                SettingsSingleton.getInstance().isSettingNightMode(),
+                SettingsSingleton.getInstance().isSettingPressure(),
+                SettingsSingleton.getInstance().isSettingWnd(),
+                SettingsSingleton.getInstance().isSettingHumidity(),
+                SettingsSingleton.getInstance().isSettingInFahrenheit()
+        };
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        for (int i = 0; i < keys.length; i++) {
+            editor.putBoolean(keys[i], values[i]);
+        }
+        editor.apply();
+
     }
 }
