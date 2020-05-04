@@ -22,16 +22,16 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
     public RecyclerCityAdapter(int sort) {
         switch (sort){
             case 0:
-                cities= App.getInstance().getEducationDao().getAllCities();
+                cities= App.getInstance().getWeatherDao().getAllCities();
                 break;
             case 1:
-                cities= App.getInstance().getEducationDao().getSortedTemperature();
+                cities= App.getInstance().getWeatherDao().getSortedTemperature();
                 break;
             case 2:
-                cities= App.getInstance().getEducationDao().getSortedDate();
+                cities= App.getInstance().getWeatherDao().getSortedDate();
                 break;
             case 3:
-                cities= App.getInstance().getEducationDao().getSortedCityName();
+                cities= App.getInstance().getWeatherDao().getSortedCityName();
                 break;
         }
     }
@@ -57,7 +57,7 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
         holder.cityNameText.setText(cities.get(position).cityName);
         holder.cityTemperature.setText(cities.get(position).getTemperature());
         holder.cityWeatherImg.setImageResource(Weather.getIcoFromString(cities.get(position).clouds));
-        holder.cityDate.setText(Weather.convDateToString(cities.get(position).date));
+        holder.cityDate.setText(Weather.convertDateToString(cities.get(position).date));
         highlightSelectedPosition(holder, position);
     }
 

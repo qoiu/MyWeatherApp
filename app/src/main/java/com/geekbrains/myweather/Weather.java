@@ -7,9 +7,12 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class Weather {
+
+
     enum WeatherType {
         CLEAR, CLOUDS, CLOUDY2, RAIN, SNOW, STORM, UNKNOWN
     }
+
     private static String[] windDirection;
 
     private static int[] ico = {
@@ -20,15 +23,7 @@ public class Weather {
             R.mipmap.icons_snowy,
             R.mipmap.icons_stormy,
             R.mipmap.icons_unknown};
-    private static int[] img = {
-            R.mipmap.weather_clear,
-            R.mipmap.weather_cloudy,
-            R.mipmap.weather_cloudy,
-            R.mipmap.weather_rainy,
-            R.mipmap.weather_snowy,
-            R.mipmap.weather_stormy,
-            R.mipmap.weather_clear
-    };
+
     private static String[] url={
             "https://images.unsplash.com/photo-1494548162494-384bba4ab999?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80",
             "https://images.unsplash.com/photo-1561634666-669fe33c3d0a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
@@ -39,7 +34,7 @@ public class Weather {
     };
 
     public static void setWindDirection(View view) {
-        windDirection = view.getResources().getStringArray(R.array.windDirrection);
+        windDirection = view.getResources().getStringArray(R.array.windDirection);
     }
 
     public static String getWindDirection(int ang){
@@ -47,7 +42,7 @@ public class Weather {
         return windDirection[id];
     }
 
-    static int getIcoFromString(String string) {
+    public static int getIcoFromString(String string) {
         try{
             return ico[WeatherType.valueOf(string.toUpperCase()).ordinal()];
         }catch (IllegalArgumentException e){
@@ -63,8 +58,9 @@ public class Weather {
         }
     }
 
-    public static String convDateToString(long date) {
+    static String convertDateToString(long date) {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.US);
         return dateFormat.format(date*1000);
     }
+
 }

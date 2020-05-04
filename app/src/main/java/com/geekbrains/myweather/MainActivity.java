@@ -1,11 +1,14 @@
 package com.geekbrains.myweather;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,15 +18,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.geekbrains.myweather.rest.model.WeatherInfo;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -32,26 +35,24 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
-import java.util.Arrays;
-import java.util.HashSet;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String BROADCAST_ACTION_CITY_LOADED = "com.geekbrains.myweather.cityDataChanged";
     private BroadcastReceiver messageReceiver=new EventReceiver();
     private AppBarConfiguration mAppBarConfiguration;
+    @SuppressLint("StaticFieldLeak")
     private static NavController navController;
-    private static HashSet<String> cityList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        new LocationDataAdapter(this);
         initNotificationChannel();
         initGetToken();
+        requestPermissions();
         registerReceiver(messageReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         registerReceiver(messageReceiver, new IntentFilter("android.intent.action.BATTERY_LOW"));
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        cityList = new HashSet<>(Arrays.asList(getResources().getStringArray(R.array.cityList)));
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -67,16 +68,37 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
     }
 
+    private void requestPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
+        }else {
+            SettingsSingleton.getInstance().setLocation(LocationDataAdapter.getLocation());
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 100) {
+            boolean permissionsGranted = true;
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    permissionsGranted = false;
+                    break;
+                }
+            }
+            if (permissionsGranted) recreate();
+        }
+    }
+
     private void initGetToken() {
         FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w("Firebase", "getInstanceId failed", task.getException());
-                            return;
-                        }
-                        String token = task.getResult().getToken();
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("Firebase", "getInstanceId failed", task.getException());
                     }
                 });
     }
@@ -120,8 +142,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (!query.equals("")) {
-                    SettingsSingleton.getInstance().setCityName(query);
-                    navController.navigate(R.id.nav_home);
+                    showMainFragment(query);
                     searchText.setQuery("", false);
                     searchText.clearFocus();
                 }
@@ -140,8 +161,18 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public static void addCityName(String cityName) {
-        cityList.add(cityName);
+    public static void showMainFragment(String query) {
+        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query);
+        if(weather!=null){
+            SettingsSingleton.getInstance().setLocationInLatLng(new LatLng(
+                    weather.latitude,
+                    weather.longitude
+            ));
+        }else {
+            SettingsSingleton.getInstance().setLocation(null);
+        }
+        SettingsSingleton.getInstance().setCityName(query);
+        navController.navigate(R.id.nav_home);
     }
 
     @Override

@@ -6,7 +6,7 @@ public class WeatherCityId {
     @SerializedName("id")public int id;
     @SerializedName("name")public String name;
     @SerializedName("country")public String country;
-    @SerializedName("cord")public CordRestModel cordRestModel;
+    @SerializedName("coord")public CordRestModel cordRestModel;
     @SerializedName("population")public long population;
     @SerializedName("sunrise")public long sunrise;
     @SerializedName("sunset")public long sunset;

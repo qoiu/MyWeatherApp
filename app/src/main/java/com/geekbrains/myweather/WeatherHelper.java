@@ -22,10 +22,12 @@ public class WeatherHelper {
         return new WeatherInfo();
     }
 
-    public void addCityWeather(WeatherRequestRestModel body) {
-        boolean update = weatherDao.getWeather(body.cityId.name) != null;
-        WeatherInfo weather = getWeatherInfo(body.cityId.name);
-        weather.cityName = body.cityId.name;
+    public void addCityWeather(WeatherRequestRestModel body,String city) {
+        boolean update = weatherDao.getWeather(city) != null;
+        WeatherInfo weather = getWeatherInfo(city);
+        weather.cityName = city;
+        weather.latitude=body.cityId.cordRestModel.lat;
+        weather.longitude=body.cityId.cordRestModel.lon;
         weather.date = body.listArray[0].dt;
         WeatherListArray weatherData;
         if (Integer.parseInt(body.listArray[0].getHour()) >= 12) {
@@ -44,10 +46,8 @@ public class WeatherHelper {
         weather.windDirection = weatherData.windRestModel.deg;
         weather.clouds=weatherData.weatherExtraData[0].main;
         if (update) {
-            Log.d("Helper","update");
             weatherDao.updateWeather(weather);
         } else {
-            Log.d("Helper","insert");
             weatherDao.insertWeather(weather);
         }
     }

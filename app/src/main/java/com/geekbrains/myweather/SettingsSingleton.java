@@ -1,5 +1,9 @@
 package com.geekbrains.myweather;
 
+import android.location.Location;
+
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.Serializable;
 
 public class SettingsSingleton implements Serializable {
@@ -11,6 +15,7 @@ public class SettingsSingleton implements Serializable {
     private boolean settingInFahrenheit=false;
     private boolean internet=true;
     private String cityName="";
+    private Location location;
 
     private SettingsSingleton() {
     }
@@ -76,5 +81,19 @@ public class SettingsSingleton implements Serializable {
 
     public String getCityName() {
         return cityName;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public void setLocationInLatLng(LatLng latLng) {
+        location = new Location("convert");
+        location.setLatitude(latLng.latitude);
+        location.setLongitude(latLng.longitude);
     }
 }
