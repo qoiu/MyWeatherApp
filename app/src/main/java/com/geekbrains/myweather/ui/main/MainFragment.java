@@ -1,24 +1,27 @@
 package com.geekbrains.myweather.ui.main;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.geekbrains.myweather.App;
+import com.geekbrains.myweather.LocationDataAdapter;
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
 import com.geekbrains.myweather.RecyclerDataAdapter;
@@ -28,21 +31,26 @@ import com.geekbrains.myweather.Weather;
 import com.geekbrains.myweather.WeatherHelper;
 import com.geekbrains.myweather.rest.OpenWeatherRepo;
 import com.geekbrains.myweather.rest.dao.WeatherDao;
+import com.geekbrains.myweather.rest.entities.WeatherListArray;
 import com.geekbrains.myweather.rest.entities.WeatherRequestRestModel;
+import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainFragment extends Fragment {
-
+    private final float WIND_ALERT = 15f;
     private TextView cityName, cityTemperature;
     private TextView itemPressure, itemHumidity, itemWind, itemWindDirection;
     private TextView itemHintPressure, itemHintHumidity, itemHintWind;
     private ImageView imageMain;
     private RecyclerView recyclerView;
-    private ProgressBar progressBar;
     private ThermometerView thermometerView;
     private SharedPreferences defaultPrefs;
     private WeatherHelper weatherHelper;
@@ -55,10 +63,9 @@ public class MainFragment extends Fragment {
     private void initDatabase() {
         WeatherDao weatherDao = App
                 .getInstance()
-                .getEducationDao();
+                .getWeatherDao();
         weatherHelper = new WeatherHelper(weatherDao);
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -66,8 +73,8 @@ public class MainFragment extends Fragment {
         setView(view);
         initDatabase();
         defaultPrefs = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
-        if (SettingsSingleton.getInstance().getCityName().equals("")) fillView();
         Weather.setWindDirection(view);
+        fillViewFromGeoLocation();
     }
 
     private void setView(View view) {
@@ -82,13 +89,44 @@ public class MainFragment extends Fragment {
         cityName = view.findViewById(R.id.textCityName);
         imageMain = view.findViewById(R.id.imageMain);
         recyclerView = view.findViewById(R.id.recyclerViewMain);
-        progressBar = view.findViewById(R.id.progressBarMain);
         thermometerView = view.findViewById(R.id.mainThermometerView);
     }
 
-    private void fillView() {
+    private void fillViewFromGeoLocation() {
+        Location location = SettingsSingleton.getInstance().getLocation();
+        String city = SettingsSingleton.getInstance().getCityName();
+        if (city.equals("")) {
+            fillViewFromDefPref();
+            if (location != null) {
+                updateWeatherData(location);
+            }else{
+                updateWeatherData(city);
+            }
+        }else {
+            if (location != null) {
+                fillCityInfoFromDao(LocationDataAdapter.getCityByLoc(location));
+                updateWeatherData(location);
+            }else{
+                fillViewFromDefPref();
+            }
+        }
+    }
+
+    private void fillCityInfoFromDao(String city) {
+        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(city);
+        cityName.setText(city);
+        cityTemperature.setText(weather.getTemperature());
+        thermometerView.setTemperature(weather.temperature);
+        savePreference(defaultPrefs, weather);
+        Picasso.get()
+                .load(Weather.getImgUrlFromString(weather.clouds))
+                .placeholder(R.mipmap.weather_clear)
+                .into(imageMain);
+    }
+
+    private void fillViewFromDefPref() {
         SettingsSingleton.getInstance().setCityName(defaultPrefs.getString("name", ""));
-        if(defaultPrefs.getString("name","null").equals("null")){
+        if (defaultPrefs.getString("name", "null").equals("null")) {
             updateWeatherData("Moscow");
         }
         cityName.setText(defaultPrefs.getString("name", "Moscow"));
@@ -122,8 +160,13 @@ public class MainFragment extends Fragment {
                     public void onResponse(@NonNull Call<WeatherRequestRestModel> call,
                                            @NonNull Response<WeatherRequestRestModel> response) {
                         if (response.body() != null && response.isSuccessful()) {
-                            weatherHelper.addCityWeather(response.body());
-                            fillCityInfo(response.body());
+                            weatherHelper.addCityWeather(response.body(), city);
+                            fillCityInfoFromDao(city);
+                            foregroundWindAlert(response.body());
+                            Location loc = new Location("fromCity");
+                            loc.setLatitude(response.body().cityId.cordRestModel.lat);
+                            loc.setLongitude(response.body().cityId.cordRestModel.lon);
+                            SettingsSingleton.getInstance().setLocation(loc);
                             setRecyclerView(response.body());
                         } else {
                             if (response.code() == 404) {
@@ -141,17 +184,70 @@ public class MainFragment extends Fragment {
                 });
     }
 
-    private void fillCityInfo(WeatherRequestRestModel body) {
-        cityName.setText(body.cityId.name);
-        MainActivity.addCityName(body.cityId.name);
-        cityTemperature.setText(String.valueOf(body.listArray[0].weatherMainData.getTemperature()));
-        thermometerView.setTemperature(body.listArray[0].weatherMainData.temperature);
-        savePreference(defaultPrefs, body);
-        Picasso.get()
-                .load(Weather.getImgUrlFromString(body.listArray[0].weatherExtraData[0].main))
-                .placeholder(R.mipmap.weather_clear)
-                .into(imageMain);
+    private void updateWeatherData(final Location loc) {
+        OpenWeatherRepo.getSingleton().getAPI().loadWeatherFromGeo(loc.getLatitude(), loc.getLongitude(),
+                "f3b8d2a726a6a983d8606e27c29b9566", "metric")
+                .enqueue(new Callback<WeatherRequestRestModel>() {
+                    @Override
+                    public void onResponse(@NonNull Call<WeatherRequestRestModel> call,
+                                           @NonNull Response<WeatherRequestRestModel> response) {
+                        if (response.body() != null && response.isSuccessful()) {
+                            String city = response.body().cityId.name;
+                            if (city == null) {
+                                alertWrongCity("City");
+                                return;
+                            }
+                            weatherHelper.addCityWeather(response.body(), city);
+                            fillCityInfoFromDao(city);
+
+                            SettingsSingleton.getInstance().setLocation(loc);
+                            foregroundWindAlert(response.body());
+                            setRecyclerView(response.body());
+                        } else {
+                            if (response.code() == 404) {
+                                alertWrongCity(LocationDataAdapter.getCityByLoc(loc));
+                            } else if (response.code() == 401) {
+                                alertAuth();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<WeatherRequestRestModel> call, Throwable t) {
+                        alertConnection();
+                    }
+                });
     }
+
+    private void foregroundWindAlert(WeatherRequestRestModel body) {
+        int ID = 1000;
+        final String sep = " ";
+        Map<String, Float> maxWind = new HashMap<>();
+        for (WeatherListArray weather : body.listArray) {
+            if (weather.windRestModel.speed > WIND_ALERT) {
+                if (maxWind.get(weather.getDate()) == null) {
+                    maxWind.put(weather.getDate(), weather.windRestModel.speed);
+                } else {
+                    maxWind.put(weather.getDate(), Math.max(maxWind.get(weather.getDate()), weather.windRestModel.speed));
+                }
+            }
+        }
+        for (Map.Entry<String, Float> wind : maxWind.entrySet()) {
+            StringBuilder msg = new StringBuilder()
+                    .append(wind.getKey()).append(sep)
+                    .append("ожидается сильный ветер до").append(sep)
+                    .append(String.format(Locale.getDefault(), "%.1f", wind.getValue())).append("\n");
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(requireActivity(), "2")
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("Warning:")
+                    .setContentText(msg.toString());
+            NotificationManager notificationManager =
+                    (NotificationManager) requireActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+            assert notificationManager != null;
+            notificationManager.notify(ID++, builder.build());
+        }
+    }
+
 
     private void alertWrongCity(String city) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
@@ -200,18 +296,18 @@ public class MainFragment extends Fragment {
         itemHintPressure.setVisibility(pressure);
     }
 
-    private void savePreference(SharedPreferences sharedPreferences, WeatherRequestRestModel body) {
+    private void savePreference(SharedPreferences sharedPreferences, WeatherInfo weather) {
         String[] keys = {"name", "temperatureString", "sky"};
         String[] values = {
-                body.cityId.name,
-                body.listArray[0].weatherMainData.getTemperature(),
-                body.listArray[0].weatherExtraData[0].main
+                weather.cityName,
+                weather.getTemperature(),
+                weather.clouds
         };
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(keys[0], values[0]);
         editor.putString(keys[1], values[1]);
         editor.putString(keys[2], values[2]);
-        editor.putFloat("temperatureFloat", body.listArray[0].weatherMainData.temperature);
+        editor.putFloat("temperatureFloat", weather.temperature);
         editor.apply();
     }
 }

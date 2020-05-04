@@ -47,4 +47,7 @@
     <string name="temperature_sort">Temperature</string>
     <string name="name_sort">Name</string>
     <string name="date_sort">Date</string>
+    <string name="menu_map">Map</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyATmGydZbz_aTf7o3AG3SUeQBlZ_JNIhKo</string>
+    <string name="loading_data">Loading...</string>
 </resources>

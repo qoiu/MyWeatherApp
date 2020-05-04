@@ -41,11 +41,21 @@
             app:destination="@id/nav_cities" />
     </fragment>
 
+    <fragment android:id="@+id/nav_map"
+        android:name="com.geekbrains.myweather.ui.map.Map"
+        android:label="@string/menu_map"
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_nav_map_to_nav_home"
+            app:destination="@id/nav_home" />
+        <action
+            android:id="@+id/action_nav_map_to_nav_cities"
+            app:destination="@id/nav_cities" />
+    </fragment>
     <fragment android:id="@+id/nav_cities"
         android:name="com.geekbrains.myweather.ui.selection.CitySelection"
         android:label="@string/menu_city"
         tools:layout="@layout/fragment_city_selection">
-
     </fragment>
 
 </navigation>

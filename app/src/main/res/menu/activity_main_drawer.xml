@@ -11,6 +11,9 @@
             android:id="@+id/nav_cities"
             android:title="@string/menu_city" />
         <item
+            android:id="@+id/nav_map"
+            android:title="@string/menu_map" />
+        <item
             android:id="@+id/nav_settings"
             android:title="@string/settings" />
 

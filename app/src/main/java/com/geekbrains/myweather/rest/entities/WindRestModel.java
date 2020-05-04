@@ -14,7 +14,7 @@ public class WindRestModel {
     }
 
     public String getWindSpeed() {
-        return String.format(Locale.getDefault(), "%.1f%n", speed);
+        return String.format(Locale.getDefault(), "%.1f %s", speed,"м/c");
     }
 
 }

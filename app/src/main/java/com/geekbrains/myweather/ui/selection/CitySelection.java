@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
 import com.geekbrains.myweather.RecyclerCityAdapter;
@@ -41,15 +42,9 @@ public class CitySelection extends Fragment {
         btnSaveCity = view.findViewById(R.id.btnSaveCity);
         etInputCity = view.findViewById(R.id.inputText);
         btnSaveCity.setEnabled(false);
-        view.findViewById(R.id.btnSortTemperature).setOnClickListener(v -> {
-            setRecyclerView(1);
-        });
-        view.findViewById(R.id.btnSortDate).setOnClickListener(v -> {
-            setRecyclerView(2);
-        });
-        view.findViewById(R.id.btnSortName).setOnClickListener(v -> {
-            setRecyclerView(3);
-        });
+        view.findViewById(R.id.btnSortTemperature).setOnClickListener(v -> setRecyclerView(1));
+        view.findViewById(R.id.btnSortDate).setOnClickListener(v -> setRecyclerView(2));
+        view.findViewById(R.id.btnSortName).setOnClickListener(v -> setRecyclerView(3));
         setRecyclerView(0);
     }
 
@@ -64,10 +59,7 @@ public class CitySelection extends Fragment {
     }
 
     private void setSaveCityName() {
-        btnSaveCity.setOnClickListener(v -> {
-            SettingsSingleton.getInstance().setCityName(etInputCity.getText().toString());
-            MainActivity.navigate(R.id.nav_home);
-        });
+        btnSaveCity.setOnClickListener(v -> MainActivity.showMainFragment(etInputCity.getText().toString()));
     }
 
     @Override

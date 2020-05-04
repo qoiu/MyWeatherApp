@@ -13,7 +13,7 @@
         <item>Ufa</item>
         <item>Volgograd</item>
     </string-array>
-    <string-array name="windDirrection">
+    <string-array name="windDirection">
         <item>C</item>
         <item>C-В</item>
         <item>В</item>

@@ -17,7 +17,9 @@ import java.util.Locale;
         WeatherInfo.PRESSURE,
         WeatherInfo.WIND_SPEED,
         WeatherInfo.WIND_DIRECTION,
-        WeatherInfo.CLOUDS
+        WeatherInfo.CLOUDS,
+        WeatherInfo.LATITUDE,
+        WeatherInfo.LONGITUDE
 }
         )})
 public class WeatherInfo {
@@ -30,6 +32,8 @@ public class WeatherInfo {
     final static String WIND_SPEED="wind_speed";
     final static String WIND_DIRECTION="wind_direction";
     final static String CLOUDS="clouds";
+    final static String LATITUDE="latitude";
+    final static String LONGITUDE="longitude";
 
     @PrimaryKey(autoGenerate = true)@ColumnInfo(name = ID) public long id;
     @ColumnInfo(name = CITY_NAME) public String cityName;
@@ -40,6 +44,8 @@ public class WeatherInfo {
     @ColumnInfo(name = WIND_SPEED) public float windSpeed;
     @ColumnInfo(name = WIND_DIRECTION) public int windDirection;
     @ColumnInfo(name = CLOUDS) public String clouds;
+    @ColumnInfo(name = LATITUDE) public float latitude;
+    @ColumnInfo(name = LONGITUDE) public float longitude;
 
     public String getTemperature() {
         if(!SettingsSingleton.getInstance().isSettingInFahrenheit()){
