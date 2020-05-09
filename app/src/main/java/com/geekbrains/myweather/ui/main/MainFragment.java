@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.geekbrains.myweather.App;
-import com.geekbrains.myweather.LocationDataAdapter;
+import com.geekbrains.myweather.LocationModule;
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
 import com.geekbrains.myweather.RecyclerDataAdapter;
@@ -60,12 +61,6 @@ public class MainFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
-    private void initDatabase() {
-        WeatherDao weatherDao = App
-                .getInstance()
-                .getWeatherDao();
-        weatherHelper = new WeatherHelper(weatherDao);
-    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -74,7 +69,6 @@ public class MainFragment extends Fragment {
         initDatabase();
         defaultPrefs = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
         Weather.setWindDirection(view);
-        fillViewFromGeoLocation();
     }
 
     private void setView(View view) {
@@ -92,28 +86,48 @@ public class MainFragment extends Fragment {
         thermometerView = view.findViewById(R.id.mainThermometerView);
     }
 
-    private void fillViewFromGeoLocation() {
+    private void initDatabase() {
+        WeatherDao weatherDao = App
+                .getInstance()
+                .getWeatherDao();
+        weatherHelper = new WeatherHelper(weatherDao);
+    }
+
+    /*
+    Проверяем имеющиеся данные.
+    Сперва смотрим location. Он будет null, если нет данных с геолокации.
+    Во всех остальных случаях, ищем данные в БД->Singleton'e->ставим по умолчанию
+     */
+    private void tryToFillViewFromGeoLocation() {
         Location location = SettingsSingleton.getInstance().getLocation();
         String city = SettingsSingleton.getInstance().getCityName();
+        Log.w("ShowWeather",city);
+        if (location != null) {
+            Log.w("ShowWeather",location.getLatitude()+":"+location.getLongitude());
+            tryToFillCityInfoFromDao(LocationModule.getInstance().getCityByLoc(location));
+            updateWeatherData(location);
+            return;
+        }
+        Log.w("ShowWeather","No location: "+city);
         if (city.equals("")) {
             fillViewFromDefPref();
-            if (location != null) {
-                updateWeatherData(location);
-            }else{
-                updateWeatherData(city);
-            }
-        }else {
-            if (location != null) {
-                fillCityInfoFromDao(LocationDataAdapter.getCityByLoc(location));
-                updateWeatherData(location);
-            }else{
-                fillViewFromDefPref();
-            }
+            updateWeatherData("Moscow");
+        } else {
+            tryToFillCityInfoFromDao(city);
+            updateWeatherData(city);
         }
     }
 
-    private void fillCityInfoFromDao(String city) {
+    private void tryToFillCityInfoFromDao(String city) {
         WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(city);
+        if (weather == null) {
+            if (!city.equals("")) {
+                fillFromSingleton();
+            } else {
+                fillViewFromDefPref();//!
+            }
+            return;
+        }
         cityName.setText(city);
         cityTemperature.setText(weather.getTemperature());
         thermometerView.setTemperature(weather.temperature);
@@ -124,12 +138,20 @@ public class MainFragment extends Fragment {
                 .into(imageMain);
     }
 
+    private void fillFromSingleton() {
+        String city = SettingsSingleton.getInstance().getCityName();
+        cityName.setText(city);
+        cityTemperature.setText(getResources().getString(R.string.loading_data));
+        thermometerView.setTemperature(0);
+        Picasso.get()
+                .load(Weather.getImgUrlFromString(defaultPrefs.getString("sky", "")))
+                .placeholder(R.mipmap.weather_clear)
+                .into(imageMain);
+    }
+
     private void fillViewFromDefPref() {
-        SettingsSingleton.getInstance().setCityName(defaultPrefs.getString("name", ""));
-        if (defaultPrefs.getString("name", "null").equals("null")) {
-            updateWeatherData("Moscow");
-        }
-        cityName.setText(defaultPrefs.getString("name", "Moscow"));
+        String city = defaultPrefs.getString("name", "Moscow");
+        cityName.setText(city);
         cityTemperature.setText(defaultPrefs.getString("temperatureString", "0"));
         thermometerView.setTemperature(defaultPrefs.getFloat("temperatureFloat", 0));
         Picasso.get()
@@ -149,19 +171,22 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
+        Log.w("ShowWeather","applySettings");
+        tryToFillViewFromGeoLocation();
         applySettings();
     }
 
     private void updateWeatherData(final String city) {
         OpenWeatherRepo.getSingleton().getAPI().loadWeather(city.toLowerCase(),
-                "f3b8d2a726a6a983d8606e27c29b9566", "metric")
+                "f3b8d2a726a6a983d8606e27c29b9566", "metric",
+                getResources().getString(R.string.lang))
                 .enqueue(new Callback<WeatherRequestRestModel>() {
                     @Override
                     public void onResponse(@NonNull Call<WeatherRequestRestModel> call,
                                            @NonNull Response<WeatherRequestRestModel> response) {
                         if (response.body() != null && response.isSuccessful()) {
                             weatherHelper.addCityWeather(response.body(), city);
-                            fillCityInfoFromDao(city);
+                            tryToFillCityInfoFromDao(city);
                             foregroundWindAlert(response.body());
                             Location loc = new Location("fromCity");
                             loc.setLatitude(response.body().cityId.cordRestModel.lat);
@@ -186,7 +211,8 @@ public class MainFragment extends Fragment {
 
     private void updateWeatherData(final Location loc) {
         OpenWeatherRepo.getSingleton().getAPI().loadWeatherFromGeo(loc.getLatitude(), loc.getLongitude(),
-                "f3b8d2a726a6a983d8606e27c29b9566", "metric")
+                "f3b8d2a726a6a983d8606e27c29b9566", "metric",
+                getResources().getString(R.string.lang))
                 .enqueue(new Callback<WeatherRequestRestModel>() {
                     @Override
                     public void onResponse(@NonNull Call<WeatherRequestRestModel> call,
@@ -198,14 +224,13 @@ public class MainFragment extends Fragment {
                                 return;
                             }
                             weatherHelper.addCityWeather(response.body(), city);
-                            fillCityInfoFromDao(city);
-
+                            tryToFillCityInfoFromDao(city);
                             SettingsSingleton.getInstance().setLocation(loc);
                             foregroundWindAlert(response.body());
                             setRecyclerView(response.body());
                         } else {
                             if (response.code() == 404) {
-                                alertWrongCity(LocationDataAdapter.getCityByLoc(loc));
+                                alertWrongCity(LocationModule.getInstance().getCityByLoc(loc));
                             } else if (response.code() == 401) {
                                 alertAuth();
                             }
@@ -233,14 +258,12 @@ public class MainFragment extends Fragment {
             }
         }
         for (Map.Entry<String, Float> wind : maxWind.entrySet()) {
-            StringBuilder msg = new StringBuilder()
-                    .append(wind.getKey()).append(sep)
-                    .append("ожидается сильный ветер до").append(sep)
-                    .append(String.format(Locale.getDefault(), "%.1f", wind.getValue())).append("\n");
+            String msg = String.format(Locale.getDefault(),
+                    getResources().getString(R.string.strong_wind_warning), wind.getValue());
             NotificationCompat.Builder builder = new NotificationCompat.Builder(requireActivity(), "2")
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle("Warning:")
-                    .setContentText(msg.toString());
+                    .setContentText(msg);
             NotificationManager notificationManager =
                     (NotificationManager) requireActivity().getSystemService(Context.NOTIFICATION_SERVICE);
             assert notificationManager != null;
@@ -283,7 +306,6 @@ public class MainFragment extends Fragment {
     }
 
     private void applySettings() {
-        updateWeatherData(SettingsSingleton.getInstance().getCityName());
         int humidity = !SettingsSingleton.getInstance().isSettingHumidity() ? View.GONE : View.VISIBLE;
         int pressure = !SettingsSingleton.getInstance().isSettingPressure() ? View.GONE : View.VISIBLE;
         int wind = !SettingsSingleton.getInstance().isSettingWnd() ? View.GONE : View.VISIBLE;

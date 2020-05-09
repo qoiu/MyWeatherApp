@@ -6,9 +6,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,74 +19,129 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.geekbrains.myweather.rest.model.WeatherInfo;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.iid.FirebaseInstanceId;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.preference.PreferenceManager;
 
+import com.bumptech.glide.Glide;
+import com.geekbrains.myweather.rest.model.WeatherInfo;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
+
 public class MainActivity extends AppCompatActivity {
-    private BroadcastReceiver messageReceiver=new EventReceiver();
-    private AppBarConfiguration mAppBarConfiguration;
+    private static final int RC_SIGN_IN = 100;
     @SuppressLint("StaticFieldLeak")
     private static NavController navController;
+    private GoogleSignInClient mGoogleSignInClient;
+    private SignInButton signInButton;
+
+    public static void showMainFragment(String query) {
+        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query);
+        if (weather != null) {
+            SettingsSingleton.getInstance().setLocationInLatLng(new LatLng(
+                    weather.latitude,
+                    weather.longitude
+            ));
+        } else {
+            SettingsSingleton.getInstance().setLocation(null);
+        }
+        SettingsSingleton.getInstance().setCityName(query);
+        navigate(R.id.nav_home);
+    }
+
+    public static void navigate(int id) {
+        navController.navigate(id);
+    }
+
+    private BroadcastReceiver messageReceiver = new EventReceiver();
+    private AppBarConfiguration mAppBarConfiguration;
+    private final String CONNECTIVITY_ACTION = ConnectivityManager.CONNECTIVITY_ACTION;
+    private final String BATTERY_ACTION = "android.intent.action.BATTERY_LOW";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        new LocationDataAdapter(this);
+        LocationModule.getInstance().setLocManager((LocationManager) getSystemService(LOCATION_SERVICE));
+        LocationModule.getInstance().setFromActivity(this);
         initNotificationChannel();
         initGetToken();
         requestPermissions();
-        registerReceiver(messageReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        registerReceiver(messageReceiver, new IntentFilter("android.intent.action.BATTERY_LOW"));
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        googleAuth();
+        registerReceiver(messageReceiver, new IntentFilter(CONNECTIVITY_ACTION));
+        registerReceiver(messageReceiver, new IntentFilter(BATTERY_ACTION));
+        initMenu();
         final SharedPreferences defaultPrefs =
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         loadPrefs(defaultPrefs);
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_cities, R.id.nav_settings)
-                .setDrawerLayout(drawer)
+    }
+
+    private void googleAuth() {
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
                 .build();
-        navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+    }
+
+    private void initNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("2", "name", importance);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
     }
 
     private void requestPermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            Log.w("coords", "coarse enable");
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            Log.w("coords", "fine enable");
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
-        }else {
-            SettingsSingleton.getInstance().setLocation(LocationDataAdapter.getLocation());
+        } else {
+            SettingsSingleton.getInstance().setLocation(LocationModule.getInstance().getLocation());
+            SettingsSingleton.getInstance().setCityName(
+                    LocationModule.getInstance().getCityByLoc(LocationModule.getInstance().getLocation()));
         }
     }
 
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == 100) {
+        if (requestCode == 100) {
             boolean permissionsGranted = true;
             for (int grantResult : grantResults) {
+                Log.w("Permission", "succes");
                 if (grantResult != PackageManager.PERMISSION_GRANTED) {
                     permissionsGranted = false;
                     break;
@@ -103,21 +160,19 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void initNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel("2", "name", importance);
-            if (notificationManager != null) {
-                notificationManager.createNotificationChannel(channel);
-            }
-        }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
-        return super.onCreateView(parent, name, context, attrs);
+    private void initMenu() {
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_home, R.id.nav_cities, R.id.nav_settings)
+                .setDrawerLayout(drawer)
+                .build();
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
     }
 
     private void loadPrefs(SharedPreferences sharedPreferences) {
@@ -129,8 +184,12 @@ public class MainActivity extends AppCompatActivity {
         SettingsSingleton.getInstance().setSettingInFahrenheit(sharedPreferences.getBoolean(keys[4], false));
     }
 
-    public static void navigate(int id) {
-        navController.navigate(id);
+
+    @Nullable
+    @Override
+    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
+                             @NonNull AttributeSet attrs) {
+        return super.onCreateView(parent, name, context, attrs);
     }
 
     @Override
@@ -138,6 +197,9 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem search = menu.findItem(R.id.action_search);
         final SearchView searchText = (SearchView) search.getActionView();
+        initAuthGoogleBtn();
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        updateUI(account);
         searchText.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -161,18 +223,73 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    public static void showMainFragment(String query) {
-        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query);
-        if(weather!=null){
-            SettingsSingleton.getInstance().setLocationInLatLng(new LatLng(
-                    weather.latitude,
-                    weather.longitude
-            ));
-        }else {
-            SettingsSingleton.getInstance().setLocation(null);
+
+    private void initAuthGoogleBtn() {
+        // Set the dimensions of the sign-in button.
+        signInButton = findViewById(R.id.sign_in_button);
+        signInButton.setSize(SignInButton.SIZE_STANDARD);
+        signInButton.setOnClickListener(v -> {
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_SIGN_IN);
+        });
+
+        TextView logOff=findViewById(R.id.headerLogOffField);
+        logOff.setOnClickListener(v -> {
+            mGoogleSignInClient.signOut()
+                    .addOnCompleteListener(this, task -> {
+                        updateUI(null);
+                    });
+        });
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
         }
-        SettingsSingleton.getInstance().setCityName(query);
-        navController.navigate(R.id.nav_home);
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            updateUI(account);
+        } catch (ApiException e) {
+            Log.w("MainActivity", "signInResult:failed code=" + e.getStatusCode());
+            updateUI(null);
+        }
+    }
+
+    private void updateUI(GoogleSignInAccount account) {
+        TextView email = findViewById(R.id.headerEmailField);
+        TextView name = findViewById(R.id.headerNameField);
+        TextView logOff = findViewById(R.id.headerLogOffField);
+        ImageView img = findViewById(R.id.headerImgField);
+        if (account != null && !account.isExpired()) {
+            Toast.makeText(getApplicationContext(), "Thank you for authorization", Toast.LENGTH_SHORT).show();
+            signInButton.setVisibility(View.GONE);
+            name.setText(account.getDisplayName());
+            img.setVisibility(View.VISIBLE);
+            if (account.getPhotoUrl()!=null){
+                Log.w("Picasso",(account.getPhotoUrl()).toString());
+                Glide.with(getBaseContext())
+                        .load(Weather.getImgUrlFromString((account.getPhotoUrl()).toString()))
+                        .into(img);
+            }else{
+                img.setImageResource(R.mipmap.ic_launcher_round);
+            }
+            email.setVisibility(View.VISIBLE);
+            email.setText(account.getEmail());
+            logOff.setVisibility(View.VISIBLE);
+        } else {
+            logOff.setVisibility(View.GONE);
+            img.setVisibility(View.GONE);
+            signInButton.setVisibility(View.VISIBLE);
+            name.setText(getResources().getString(R.string.nav_header_title));
+            email.setVisibility(View.GONE);
+        }
     }
 
     @Override
