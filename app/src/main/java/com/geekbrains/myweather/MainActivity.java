@@ -35,8 +35,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
-
-import com.bumptech.glide.Glide;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -48,6 +46,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 100;
@@ -97,11 +96,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void googleAuth() {
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
-        // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
@@ -225,14 +222,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initAuthGoogleBtn() {
-        // Set the dimensions of the sign-in button.
         signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         signInButton.setOnClickListener(v -> {
             Intent signInIntent = mGoogleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
         });
-
         TextView logOff=findViewById(R.id.headerLogOffField);
         logOff.setOnClickListener(v -> {
             mGoogleSignInClient.signOut()
@@ -240,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
                         updateUI(null);
                     });
         });
-
     }
 
     @Override
@@ -272,14 +266,17 @@ public class MainActivity extends AppCompatActivity {
             signInButton.setVisibility(View.GONE);
             name.setText(account.getDisplayName());
             img.setVisibility(View.VISIBLE);
+            img.setBackgroundResource(R.drawable.round_img);
             if (account.getPhotoUrl()!=null){
-                Log.w("Picasso",(account.getPhotoUrl()).toString());
-                Glide.with(getBaseContext())
-                        .load(Weather.getImgUrlFromString((account.getPhotoUrl()).toString()))
+                Picasso.get()
+                        .load(account.getPhotoUrl().toString())
+                        .transform(new CircleTransformation())
+                        .placeholder(R.mipmap.ic_launcher_round)
                         .into(img);
             }else{
                 img.setImageResource(R.mipmap.ic_launcher_round);
             }
+            img.setBackgroundResource(R.drawable.round_img);
             email.setVisibility(View.VISIBLE);
             email.setText(account.getEmail());
             logOff.setVisibility(View.VISIBLE);

@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,14 +100,11 @@ public class MainFragment extends Fragment {
     private void tryToFillViewFromGeoLocation() {
         Location location = SettingsSingleton.getInstance().getLocation();
         String city = SettingsSingleton.getInstance().getCityName();
-        Log.w("ShowWeather",city);
         if (location != null) {
-            Log.w("ShowWeather",location.getLatitude()+":"+location.getLongitude());
             tryToFillCityInfoFromDao(LocationModule.getInstance().getCityByLoc(location));
             updateWeatherData(location);
             return;
         }
-        Log.w("ShowWeather","No location: "+city);
         if (city.equals("")) {
             fillViewFromDefPref();
             updateWeatherData("Moscow");
@@ -124,7 +120,7 @@ public class MainFragment extends Fragment {
             if (!city.equals("")) {
                 fillFromSingleton();
             } else {
-                fillViewFromDefPref();//!
+                fillViewFromDefPref();
             }
             return;
         }
@@ -171,7 +167,6 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        Log.w("ShowWeather","applySettings");
         tryToFillViewFromGeoLocation();
         applySettings();
     }

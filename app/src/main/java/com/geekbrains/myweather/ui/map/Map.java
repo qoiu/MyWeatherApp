@@ -86,12 +86,10 @@ public class Map extends Fragment implements OnMapReadyCallback {
                     .icon(BitmapDescriptorFactory.fromResource(Weather.getIcoFromString(city.clouds)))
                     .title(city.cityName));
             marker.showInfoWindow();
-            Log.w("ShowWeather load",city.cityName);
             googleMap.setOnMapLongClickListener(latLng -> {
                 Location location = new Location("convert");
                 location.setLongitude(latLng.longitude);
                 location.setLatitude(latLng.latitude);
-                Log.w("ShowWeather",city.cityName);
                 SettingsSingleton.getInstance().setCityName(city.cityName);
                 SettingsSingleton.getInstance().setLocation(location);
                 MainActivity.navigate(R.id.nav_home);
