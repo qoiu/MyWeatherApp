@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,6 +65,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Toast.makeText(requireContext().getApplicationContext(),"This is pro version",Toast.LENGTH_SHORT).show();
         setView(view);
         initDatabase();
         defaultPrefs = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);

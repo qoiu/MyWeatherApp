@@ -25,6 +25,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -35,12 +36,13 @@ import java.util.List;
 public class Map extends Fragment implements OnMapReadyCallback {
 
     private MapView mapView;
-
+    private CameraPosition cameraPosition;
     public Map() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
     }
 
@@ -50,6 +52,8 @@ public class Map extends Fragment implements OnMapReadyCallback {
         mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+        setRetainInstance(true);
     }
 
     @Override
@@ -62,20 +66,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         LatLng maltLng;
-        if (SettingsSingleton.getInstance().getLocation() == null) {
-            if (LocationModule.getInstance().getLocation() != null) {
-                maltLng = new LatLng(
-                        LocationModule.getInstance().getLocation().getLatitude(),
-                        LocationModule.getInstance().getLocation().getLongitude());
-            } else {
-                maltLng = new LatLng(55.752830, 37.617257);
-            }
-        } else {
-            maltLng = new LatLng(
-                    SettingsSingleton.getInstance().getLocation().getLatitude(),
-                    SettingsSingleton.getInstance().getLocation().getLongitude());
-        }
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(maltLng, 10);
+        googleMap.setOnCameraMoveListener(() -> cameraPosition=googleMap.getCameraPosition());
         List<WeatherInfo> cityList = App.getInstance().getWeatherDao().getAllCities();
         for (WeatherInfo city : cityList) {
             LatLng coord = new LatLng(city.latitude, city.longitude);
@@ -96,8 +87,6 @@ public class Map extends Fragment implements OnMapReadyCallback {
             });
 
         }
-
-        googleMap.animateCamera(cameraUpdate);
         googleMap.setOnMapClickListener(latLng -> {
             Location location = new Location("convert");
             location.setLongitude(latLng.longitude);
@@ -112,7 +101,25 @@ public class Map extends Fragment implements OnMapReadyCallback {
                 MainActivity.navigate(R.id.nav_home);
             }
         });
+        Log.w("Map","Update");
+        if(cameraPosition!=null){
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            return;
+        }
+        if (SettingsSingleton.getInstance().getLocation() == null) {
+                maltLng = new LatLng(55.752830, 37.617257);
+        } else {
+            maltLng = new LatLng(
+                    SettingsSingleton.getInstance().getLocation().getLatitude(),
+                    SettingsSingleton.getInstance().getLocation().getLongitude());
+        }
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(maltLng, 10);
+        googleMap.animateCamera(cameraUpdate);
+        //
+
     }
+
+
 
 
     @Override
@@ -131,5 +138,17 @@ public class Map extends Fragment implements OnMapReadyCallback {
     public void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
     }
 }

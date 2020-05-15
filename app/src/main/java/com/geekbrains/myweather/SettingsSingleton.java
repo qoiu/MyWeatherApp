@@ -96,4 +96,5 @@ public class SettingsSingleton implements Serializable {
         location.setLatitude(latLng.latitude);
         location.setLongitude(latLng.longitude);
     }
+
 }

@@ -19,21 +19,7 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
     private int currentSelection;
     private List<WeatherInfo> cities;
 
-    public RecyclerCityAdapter(int sort) {
-        switch (sort){
-            case 0:
-                cities= App.getInstance().getWeatherDao().getAllCities();
-                break;
-            case 1:
-                cities= App.getInstance().getWeatherDao().getSortedTemperature();
-                break;
-            case 2:
-                cities= App.getInstance().getWeatherDao().getSortedDate();
-                break;
-            case 3:
-                cities= App.getInstance().getWeatherDao().getSortedCityName();
-                break;
-        }
+    public RecyclerCityAdapter() {
     }
 
     public interface OnItemClickListener {
@@ -42,6 +28,10 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
 
     public void SetOnClickListener(OnItemClickListener itemClickListener) {
         this.itemClickListener = itemClickListener;
+    }
+
+    public void changeCities(List<WeatherInfo> cities){
+        this.cities=cities;
     }
 
     @NonNull

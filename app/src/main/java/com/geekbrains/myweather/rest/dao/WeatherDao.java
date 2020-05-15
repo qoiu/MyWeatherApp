@@ -25,13 +25,12 @@ public interface WeatherDao {
     @Query("SELECT * FROM weatherinfo")
     List<WeatherInfo> getAllCities();
 
-    @Query("SELECT * FROM weatherinfo ORDER BY temperature ASC ")
-    List<WeatherInfo> getSortedTemperature();
+    @Query("SELECT * FROM weatherinfo ORDER BY CASE WHEN :isAsc = 1 THEN temperature END ASC, CASE WHEN :isAsc = 0 THEN temperature END DESC ")
+    List<WeatherInfo> getSortedTemperature(boolean isAsc);
 
+    @Query("SELECT * FROM weatherinfo ORDER BY CASE WHEN :isAsc = 1 THEN date END ASC, CASE WHEN :isAsc = 0 THEN date END DESC")
+    List<WeatherInfo> getSortedDate(boolean isAsc);
 
-    @Query("SELECT * FROM weatherinfo ORDER BY date ASC ")
-    List<WeatherInfo> getSortedDate();
-
-    @Query("SELECT * FROM weatherinfo ORDER BY city_name ASC ")
-    List<WeatherInfo> getSortedCityName();
+    @Query("SELECT * FROM weatherinfo ORDER BY CASE WHEN :isAsc = 1 THEN city_name END ASC, CASE WHEN :isAsc = 0 THEN city_name END DESC ")
+    List<WeatherInfo> getSortedCityName(boolean isAsc);
 }

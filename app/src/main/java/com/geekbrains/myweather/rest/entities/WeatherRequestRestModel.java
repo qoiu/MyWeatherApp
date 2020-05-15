@@ -9,5 +9,4 @@ public class WeatherRequestRestModel {
 @SerializedName("list")public WeatherListArray[] listArray;
 @SerializedName("city")public WeatherCityId cityId;
 
-
 }

@@ -12,17 +12,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.geekbrains.myweather.App;
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
 import com.geekbrains.myweather.RecyclerCityAdapter;
 import com.geekbrains.myweather.SettingsSingleton;
+import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.google.android.material.button.MaterialButton;
+
+import java.util.List;
 
 public class CitySelection extends Fragment {
     private MaterialButton btnSaveCity;
     private RecyclerView recyclerView;
     private EditText etInputCity;
     private RecyclerCityAdapter recycleAdapter;
+    private boolean[] sortOrder = new boolean[4];
 
     @Nullable
     @Override
@@ -42,15 +47,24 @@ public class CitySelection extends Fragment {
         btnSaveCity = view.findViewById(R.id.btnSaveCity);
         etInputCity = view.findViewById(R.id.inputText);
         btnSaveCity.setEnabled(false);
-        view.findViewById(R.id.btnSortTemperature).setOnClickListener(v -> setRecyclerView(1));
-        view.findViewById(R.id.btnSortDate).setOnClickListener(v -> setRecyclerView(2));
-        view.findViewById(R.id.btnSortName).setOnClickListener(v -> setRecyclerView(3));
+        view.findViewById(R.id.btnSortTemperature).setOnClickListener(v -> sort(1)
+        );
+        view.findViewById(R.id.btnSortDate).setOnClickListener(v -> sort(2)
+        );
+        view.findViewById(R.id.btnSortName).setOnClickListener(v -> sort(3));
         setRecyclerView(0);
     }
 
-    private void setRecyclerView(int sort) {
+    private void sort(int id) {
+        sortOrder[id] = !sortOrder[id];
+        setRecyclerView(id);
+        updateRecyclerView(getCities(id));
+    }
+
+    private void setRecyclerView(int id) {
         btnSaveCity.setEnabled(true);
-        recycleAdapter = new RecyclerCityAdapter(sort);
+        recycleAdapter = new RecyclerCityAdapter();
+        updateRecyclerView(getCities(0));
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -60,6 +74,30 @@ public class CitySelection extends Fragment {
 
     private void setSaveCityName() {
         btnSaveCity.setOnClickListener(v -> MainActivity.showMainFragment(etInputCity.getText().toString()));
+    }
+
+    private List<WeatherInfo> getCities(int id) {
+        List<WeatherInfo> cities;
+        switch (id) {
+            case 1:
+                cities = App.getInstance().getWeatherDao().getSortedTemperature(sortOrder[id]);
+                break;
+            case 2:
+                cities = App.getInstance().getWeatherDao().getSortedDate(sortOrder[id]);
+                break;
+            case 3:
+                cities = App.getInstance().getWeatherDao().getSortedCityName(sortOrder[id]);
+                break;
+            default:
+                cities = App.getInstance().getWeatherDao().getAllCities();
+                break;
+        }
+        return cities;
+    }
+
+    private void updateRecyclerView(List<WeatherInfo> cities) {
+        recycleAdapter.changeCities(cities);
+        recycleAdapter.notifyDataSetChanged();
     }
 
     @Override

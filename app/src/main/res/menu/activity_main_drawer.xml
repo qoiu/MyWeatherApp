@@ -6,15 +6,19 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
+            android:icon="@drawable/ic_wb_sunny_black_24dp"
             android:title="@string/menu_forecast" />
         <item
             android:id="@+id/nav_cities"
+            android:icon="@drawable/ic_location_city_black_24dp"
             android:title="@string/menu_city" />
         <item
             android:id="@+id/nav_map"
+            android:icon="@drawable/ic_map_black_24dp"
             android:title="@string/menu_map" />
         <item
             android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings_black_24dp"
             android:title="@string/settings" />
 
     </group>

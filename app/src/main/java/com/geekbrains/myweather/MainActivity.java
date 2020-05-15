@@ -181,7 +181,6 @@ public class MainActivity extends AppCompatActivity {
         SettingsSingleton.getInstance().setSettingInFahrenheit(sharedPreferences.getBoolean(keys[4], false));
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
@@ -266,7 +265,6 @@ public class MainActivity extends AppCompatActivity {
             signInButton.setVisibility(View.GONE);
             name.setText(account.getDisplayName());
             img.setVisibility(View.VISIBLE);
-            img.setBackgroundResource(R.drawable.round_img);
             if (account.getPhotoUrl()!=null){
                 Picasso.get()
                         .load(account.getPhotoUrl().toString())
@@ -276,7 +274,6 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 img.setImageResource(R.mipmap.ic_launcher_round);
             }
-            img.setBackgroundResource(R.drawable.round_img);
             email.setVisibility(View.VISIBLE);
             email.setText(account.getEmail());
             logOff.setVisibility(View.VISIBLE);
