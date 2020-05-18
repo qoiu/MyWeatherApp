@@ -16,7 +16,7 @@ import com.geekbrains.myweather.App;
 import com.geekbrains.myweather.LocationModule;
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
-import com.geekbrains.myweather.SettingsSingleton;
+import com.geekbrains.myweather.AppSettings;
 import com.geekbrains.myweather.Weather;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.google.android.gms.maps.CameraUpdate;
@@ -33,11 +33,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.List;
 
 
-public class Map extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private MapView mapView;
     private CameraPosition cameraPosition;
-    public Map() {
+    public MapFragment() {
     }
 
     @Override
@@ -72,7 +72,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
             LatLng coord = new LatLng(city.latitude, city.longitude);
             Marker marker = googleMap.addMarker(new MarkerOptions()
                     .position(coord)
-                    .snippet(city.getTemperature())
+                    .snippet(city.getTemperatureString())
                     .flat(true)
                     .icon(BitmapDescriptorFactory.fromResource(Weather.getIcoFromString(city.clouds)))
                     .title(city.cityName));
@@ -81,8 +81,8 @@ public class Map extends Fragment implements OnMapReadyCallback {
                 Location location = new Location("convert");
                 location.setLongitude(latLng.longitude);
                 location.setLatitude(latLng.latitude);
-                SettingsSingleton.getInstance().setCityName(city.cityName);
-                SettingsSingleton.getInstance().setLocation(location);
+                AppSettings.get().setCityName(city.cityName);
+                AppSettings.get().setLocation(location);
                 MainActivity.navigate(R.id.nav_home);
             });
 
@@ -96,8 +96,8 @@ public class Map extends Fragment implements OnMapReadyCallback {
                 Toast.makeText(requireActivity().getBaseContext(),
                         "There are no city nearby", Toast.LENGTH_SHORT).show();
             } else {
-                SettingsSingleton.getInstance().setCityName(LocationModule.getInstance().getCityByLoc(location));
-                SettingsSingleton.getInstance().setLocation(location);
+                AppSettings.get().setCityName(LocationModule.getInstance().getCityByLoc(location));
+                AppSettings.get().setLocation(location);
                 MainActivity.navigate(R.id.nav_home);
             }
         });
@@ -106,21 +106,18 @@ public class Map extends Fragment implements OnMapReadyCallback {
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             return;
         }
-        if (SettingsSingleton.getInstance().getLocation() == null) {
+        if (AppSettings.get().getLocation() == null) {
                 maltLng = new LatLng(55.752830, 37.617257);
         } else {
             maltLng = new LatLng(
-                    SettingsSingleton.getInstance().getLocation().getLatitude(),
-                    SettingsSingleton.getInstance().getLocation().getLongitude());
+                    AppSettings.get().getLocation().getLatitude(),
+                    AppSettings.get().getLocation().getLongitude());
         }
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(maltLng, 10);
         googleMap.animateCamera(cameraUpdate);
         //
 
     }
-
-
-
 
     @Override
     public void onResume() {

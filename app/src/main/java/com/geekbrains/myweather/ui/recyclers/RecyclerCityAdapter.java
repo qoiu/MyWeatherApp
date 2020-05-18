@@ -1,4 +1,4 @@
-package com.geekbrains.myweather;
+package com.geekbrains.myweather.ui.recyclers;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +9,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.geekbrains.myweather.AppSettings;
+import com.geekbrains.myweather.Converter;
+import com.geekbrains.myweather.R;
+import com.geekbrains.myweather.Weather;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 
 import java.util.List;
@@ -45,9 +49,9 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.cityNameText.setText(cities.get(position).cityName);
-        holder.cityTemperature.setText(cities.get(position).getTemperature());
+        holder.cityTemperature.setText(cities.get(position).getTemperatureString());
         holder.cityWeatherImg.setImageResource(Weather.getIcoFromString(cities.get(position).clouds));
-        holder.cityDate.setText(Weather.convertDateToString(cities.get(position).date));
+        holder.cityDate.setText(Converter.convertDateToString(cities.get(position).date));
         highlightSelectedPosition(holder, position);
     }
 
@@ -75,7 +79,7 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
             itemView.setOnClickListener(v -> {
                 if (itemClickListener != null) {
                     currentSelection = getAdapterPosition();
-                    SettingsSingleton.getInstance().setCityName(cities.get(currentSelection).cityName);
+                    AppSettings.get().setCityName(cities.get(currentSelection).cityName);
                     itemClickListener.OnItemClick(itemView, getAdapterPosition());
                     notifyDataSetChanged();
                 }

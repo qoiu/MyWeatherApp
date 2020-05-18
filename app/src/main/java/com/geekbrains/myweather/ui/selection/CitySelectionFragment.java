@@ -15,14 +15,14 @@ import android.widget.EditText;
 import com.geekbrains.myweather.App;
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
-import com.geekbrains.myweather.RecyclerCityAdapter;
-import com.geekbrains.myweather.SettingsSingleton;
+import com.geekbrains.myweather.ui.recyclers.RecyclerCityAdapter;
+import com.geekbrains.myweather.AppSettings;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.List;
 
-public class CitySelection extends Fragment {
+public class CitySelectionFragment extends Fragment {
     private MaterialButton btnSaveCity;
     private RecyclerView recyclerView;
     private EditText etInputCity;
@@ -52,7 +52,8 @@ public class CitySelection extends Fragment {
         view.findViewById(R.id.btnSortDate).setOnClickListener(v -> sort(2)
         );
         view.findViewById(R.id.btnSortName).setOnClickListener(v -> sort(3));
-        setRecyclerView(0);
+        sortOrder[3]=true;
+        setRecyclerView(3);
     }
 
     private void sort(int id) {
@@ -64,12 +65,12 @@ public class CitySelection extends Fragment {
     private void setRecyclerView(int id) {
         btnSaveCity.setEnabled(true);
         recycleAdapter = new RecyclerCityAdapter();
-        updateRecyclerView(getCities(0));
+        updateRecyclerView(getCities(id));
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(recycleAdapter);
-        recycleAdapter.SetOnClickListener((view, position) -> etInputCity.setText(SettingsSingleton.getInstance().getCityName()));
+        recycleAdapter.SetOnClickListener((view, position) -> etInputCity.setText(AppSettings.get().getCityName()));
     }
 
     private void setSaveCityName() {
@@ -78,15 +79,16 @@ public class CitySelection extends Fragment {
 
     private List<WeatherInfo> getCities(int id) {
         List<WeatherInfo> cities;
+        long date=AppSettings.get().getToday();
         switch (id) {
             case 1:
-                cities = App.getInstance().getWeatherDao().getSortedTemperature(sortOrder[id]);
+                cities = App.getInstance().getWeatherDao().getSortedTemperature(sortOrder[id],date);
                 break;
             case 2:
-                cities = App.getInstance().getWeatherDao().getSortedDate(sortOrder[id]);
+                cities = App.getInstance().getWeatherDao().getSortedDate(sortOrder[id],date);
                 break;
             case 3:
-                cities = App.getInstance().getWeatherDao().getSortedCityName(sortOrder[id]);
+                cities = App.getInstance().getWeatherDao().getSortedCityName(sortOrder[id],date);
                 break;
             default:
                 cities = App.getInstance().getWeatherDao().getAllCities();

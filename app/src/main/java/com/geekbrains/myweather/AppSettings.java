@@ -1,13 +1,25 @@
 package com.geekbrains.myweather;
 
 import android.location.Location;
+import android.os.Build;
+import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
-public class SettingsSingleton implements Serializable {
-    private static SettingsSingleton instance;
+public class AppSettings implements Serializable {
+    private static AppSettings instance;
     private boolean settingNightMode;
     private boolean settingWnd;
     private boolean settingPressure;
@@ -16,16 +28,36 @@ public class SettingsSingleton implements Serializable {
     private boolean internet=true;
     private String cityName="";
     private Location location;
+    private String localization;
+    private long today;
 
-    private SettingsSingleton() {
+    private AppSettings() {
+        today= getBaseToday();
     }
 
-    public static SettingsSingleton getInstance() {
+    private long getBaseToday(){
+        Date d=new Date();
+        DateFormat df=new SimpleDateFormat("yyyy.MM.dd 12:00:00", Locale.US);
+        String s=df.format(d);
+        df=new SimpleDateFormat("yyyy.MM.dd HH:mm:SS", Locale.US);
+        Date date;
+        try {
+            date=df.parse(s);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return d.getTime();
+        }
+        return date.getTime()/1000;
+    }
+
+    public static AppSettings get() {
         if (instance == null) {
-            instance = new SettingsSingleton();
+            instance = new AppSettings();
         }
         return instance;
     }
+
+
 
     public boolean isInternet() {
         return internet;
@@ -92,9 +124,22 @@ public class SettingsSingleton implements Serializable {
     }
 
     public void setLocationInLatLng(LatLng latLng) {
-        location = new Location("convert");
-        location.setLatitude(latLng.latitude);
-        location.setLongitude(latLng.longitude);
+        location=Converter.latLngToLocation(latLng);
     }
 
+    public String getLocalization() {
+        return localization;
+    }
+
+    public void setLocalization(String localization) {
+        this.localization = localization;
+    }
+
+    public long getToday() {
+        return today;
+    }
+
+    public void setToday(long today) {
+        this.today = today;
+    }
 }

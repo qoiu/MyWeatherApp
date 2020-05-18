@@ -35,6 +35,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
+
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -56,16 +57,16 @@ public class MainActivity extends AppCompatActivity {
     private SignInButton signInButton;
 
     public static void showMainFragment(String query) {
-        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query);
+        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query,AppSettings.get().getToday());
         if (weather != null) {
-            SettingsSingleton.getInstance().setLocationInLatLng(new LatLng(
+            AppSettings.get().setLocationInLatLng(new LatLng(
                     weather.latitude,
                     weather.longitude
             ));
         } else {
-            SettingsSingleton.getInstance().setLocation(null);
+            AppSettings.get().setLocation(null);
         }
-        SettingsSingleton.getInstance().setCityName(query);
+        AppSettings.get().setCityName(query);
         navigate(R.id.nav_home);
     }
 
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private final String CONNECTIVITY_ACTION = ConnectivityManager.CONNECTIVITY_ACTION;
     private final String BATTERY_ACTION = "android.intent.action.BATTERY_LOW";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,8 +126,8 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
         } else {
-            SettingsSingleton.getInstance().setLocation(LocationModule.getInstance().getLocation());
-            SettingsSingleton.getInstance().setCityName(
+            AppSettings.get().setLocation(LocationModule.getInstance().getLocation());
+            AppSettings.get().setCityName(
                     LocationModule.getInstance().getCityByLoc(LocationModule.getInstance().getLocation()));
         }
     }
@@ -161,6 +163,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        AppSettings.get().setLocalization(getResources().getString(R.string.lang));
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         mAppBarConfiguration = new AppBarConfiguration.Builder(
@@ -174,12 +177,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadPrefs(SharedPreferences sharedPreferences) {
         String[] keys = {"night", "pressure", "wind", "humidity", "celsius"};
-        SettingsSingleton.getInstance().setSettingNightMode(sharedPreferences.getBoolean(keys[0], false));
-        SettingsSingleton.getInstance().setSettingPressure(sharedPreferences.getBoolean(keys[1], false));
-        SettingsSingleton.getInstance().setSettingWnd(sharedPreferences.getBoolean(keys[2], false));
-        SettingsSingleton.getInstance().setSettingHumidity(sharedPreferences.getBoolean(keys[3], false));
-        SettingsSingleton.getInstance().setSettingInFahrenheit(sharedPreferences.getBoolean(keys[4], false));
+        AppSettings.get().setSettingNightMode(sharedPreferences.getBoolean(keys[0], false));
+        AppSettings.get().setSettingPressure(sharedPreferences.getBoolean(keys[1], false));
+        AppSettings.get().setSettingWnd(sharedPreferences.getBoolean(keys[2], false));
+        AppSettings.get().setSettingHumidity(sharedPreferences.getBoolean(keys[3], false));
+        AppSettings.get().setSettingInFahrenheit(sharedPreferences.getBoolean(keys[4], false));
     }
+
 
     @Nullable
     @Override

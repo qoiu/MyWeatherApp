@@ -12,12 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.geekbrains.myweather.R;
-import com.geekbrains.myweather.SettingsSingleton;
+import com.geekbrains.myweather.AppSettings;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
-public class Settings extends Fragment {
+public class SettingsFragment extends Fragment {
 
     private SwitchMaterial swNight, swPressure, swWind, swHumidity;
     private MaterialRadioButton rbCelsius, rbFahrenheit;
@@ -60,13 +60,13 @@ public class Settings extends Fragment {
     }
 
     private void setElements() {
-        swNight.setChecked(SettingsSingleton.getInstance().isSettingNightMode());
-        swWind.setChecked(SettingsSingleton.getInstance().isSettingWnd());
-        swPressure.setChecked(SettingsSingleton.getInstance().isSettingPressure());
-        swHumidity.setChecked(SettingsSingleton.getInstance().isSettingHumidity());
-        rbCelsius.setChecked(!SettingsSingleton.getInstance().isSettingInFahrenheit());
-        rbFahrenheit.setChecked(SettingsSingleton.getInstance().isSettingInFahrenheit());
-        rbCelsius.setChecked(!SettingsSingleton.getInstance().isSettingInFahrenheit());
+        swNight.setChecked(AppSettings.get().isSettingNightMode());
+        swWind.setChecked(AppSettings.get().isSettingWnd());
+        swPressure.setChecked(AppSettings.get().isSettingPressure());
+        swHumidity.setChecked(AppSettings.get().isSettingHumidity());
+        rbCelsius.setChecked(!AppSettings.get().isSettingInFahrenheit());
+        rbFahrenheit.setChecked(AppSettings.get().isSettingInFahrenheit());
+        rbCelsius.setChecked(!AppSettings.get().isSettingInFahrenheit());
     }
 
     @Override
@@ -76,11 +76,11 @@ public class Settings extends Fragment {
     }
 
     private void saveElementsState() {
-        SettingsSingleton.getInstance().setSettingNightMode(swNight.isChecked());
-        SettingsSingleton.getInstance().setSettingPressure(swPressure.isChecked());
-        SettingsSingleton.getInstance().setSettingWnd(swWind.isChecked());
-        SettingsSingleton.getInstance().setSettingHumidity(swHumidity.isChecked());
-        SettingsSingleton.getInstance().setSettingInFahrenheit(!rbCelsius.isChecked());
+        AppSettings.get().setSettingNightMode(swNight.isChecked());
+        AppSettings.get().setSettingPressure(swPressure.isChecked());
+        AppSettings.get().setSettingWnd(swWind.isChecked());
+        AppSettings.get().setSettingHumidity(swHumidity.isChecked());
+        AppSettings.get().setSettingInFahrenheit(!rbCelsius.isChecked());
         SharedPreferences defaultPrefs =
                 PreferenceManager.getDefaultSharedPreferences(requireActivity().getApplicationContext());
         savePreference(defaultPrefs);
@@ -89,11 +89,11 @@ public class Settings extends Fragment {
     private void savePreference(SharedPreferences sharedPreferences) {
         String[] keys = {"night", "pressure", "wind", "humidity", "celsius"};
         boolean[] values = {
-                SettingsSingleton.getInstance().isSettingNightMode(),
-                SettingsSingleton.getInstance().isSettingPressure(),
-                SettingsSingleton.getInstance().isSettingWnd(),
-                SettingsSingleton.getInstance().isSettingHumidity(),
-                SettingsSingleton.getInstance().isSettingInFahrenheit()
+                AppSettings.get().isSettingNightMode(),
+                AppSettings.get().isSettingPressure(),
+                AppSettings.get().isSettingWnd(),
+                AppSettings.get().isSettingHumidity(),
+                AppSettings.get().isSettingInFahrenheit()
         };
 
         SharedPreferences.Editor editor = sharedPreferences.edit();

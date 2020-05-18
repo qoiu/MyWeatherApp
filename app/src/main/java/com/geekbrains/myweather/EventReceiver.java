@@ -20,11 +20,11 @@ public class EventReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String msg = "";
         if (intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE") &&
-                SettingsSingleton.getInstance().isInternet() && !isConnected(context)) {
+                AppSettings.get().isInternet() && !isConnected(context)) {
 
             sendNotification(context,"Warning: Internet connection failed");
         }
-        SettingsSingleton.getInstance().setInternet(isConnected(context));
+        AppSettings.get().setInternet(isConnected(context));
         if (intent.getAction().equals("android.intent.action.BATTERY_LOW")) {
             sendNotification(context,"Warning: Battery low");
         }

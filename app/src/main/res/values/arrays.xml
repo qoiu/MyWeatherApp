@@ -50,9 +50,6 @@
         <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
         <item>+7,+8,+6,+5,+3,+2,+1,+5,+8,0</item>
     </string-array>
-    <string-array name="weatherIco">
-        <item>@ico</item>
-    </string-array>
     <string-array name="cityWind">
         <item>3 м/с, З</item>
         <item>12 м/с, В</item>
