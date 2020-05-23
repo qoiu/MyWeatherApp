@@ -65,6 +65,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        googleMap.setMyLocationEnabled(true);
         LatLng maltLng;
         googleMap.setOnCameraMoveListener(() -> cameraPosition=googleMap.getCameraPosition());
         List<WeatherInfo> cityList = App.getInstance().getWeatherDao().getAllCities();
@@ -74,6 +75,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     .position(coord)
                     .snippet(city.getTemperatureString())
                     .flat(true)
+                    .anchor(0.5F,0.5F)
                     .icon(BitmapDescriptorFactory.fromResource(Weather.getIcoFromString(city.clouds)))
                     .title(city.cityName));
             marker.showInfoWindow();

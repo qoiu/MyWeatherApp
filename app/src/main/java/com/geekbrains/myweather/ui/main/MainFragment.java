@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,11 +35,11 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
     private TextView cityName, cityTemperature;
     private TextView itemPressure, itemHumidity, itemWind, itemWindDirection;
     private TextView itemHintPressure, itemHintHumidity, itemHintWind;
+    private ProgressBar progressBar;
     private ImageView imageMain;
     private RecyclerView recyclerView;
     private ThermometerView thermometerView;
     private SharedPreferences defaultPrefs;
-    private MainFragmentPresenter presenterMain;
     private int notify_id = 1000;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -55,9 +56,8 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
         fillViewFromDefPref();
         setRecyclerView();
         Weather.setWindDirection(view);
-        presenterMain = new MainFragmentPresenter();
-        presenterMain.bindView(this);
-        presenterMain.onCreate();
+        MainFragmentPresenter.get().bindView(this);
+        MainFragmentPresenter.get().onCreate();
     }
 
     private void setView(View view) {
@@ -73,6 +73,7 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
         imageMain = view.findViewById(R.id.imageMain);
         recyclerView = view.findViewById(R.id.recyclerViewMain);
         thermometerView = view.findViewById(R.id.mainThermometerView);
+        progressBar=view.findViewById(R.id.progressBar);
     }
 
     private void setRecyclerView() {
@@ -86,7 +87,7 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        presenterMain.firstRun();
+        MainFragmentPresenter.get().firstRun();
         applySettings();
     }
 
@@ -154,6 +155,7 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
 
     @Override
     public void updateData() {
+        progressBar.setVisibility(View.GONE);
         setRecyclerView();
     }
 
@@ -171,5 +173,11 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
         }
         editor.putFloat("temperatureFloat", informationData.getTemperatureValue());
         editor.apply();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        MainFragmentPresenter.get().unbindView();
     }
 }

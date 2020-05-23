@@ -4,6 +4,9 @@ import com.geekbrains.myweather.rest.dao.WeatherDao;
 import com.geekbrains.myweather.rest.entities.WeatherListArray;
 import com.geekbrains.myweather.rest.entities.WeatherRequestRestModel;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.Date;
 
 public class WeatherHelper {
     private final WeatherDao weatherDao;
@@ -26,6 +29,7 @@ public class WeatherHelper {
         AppSettings.get().setCityName(weather.cityName);
         weather.latitude = body.cityId.cordRestModel.lat;
         weather.longitude = body.cityId.cordRestModel.lon;
+        AppSettings.get().setLocationInLatLng(new LatLng(weather.latitude,weather.longitude));
         weather.date = body.listArray[0].dt;
         long today = 0;
         if(!Converter.getHour(weather.date).equals("12")){
@@ -34,19 +38,18 @@ public class WeatherHelper {
             saveResult(weather,body.listArray[0]);
         }
         for (WeatherListArray weatherElem : body.listArray) {
-            String date=Converter.convertDateToString(weatherElem.dt);
-            if (Converter.getHour(weatherElem.dt).equals("12")) {
+            if (Converter.isNoon(weatherElem.dt)) {
                if(today==0) {
                     today=weatherElem.dt;
                     AppSettings.get().setToday(today);
                 }
+                weather.date = Converter.getNoon(weatherElem.dt);
                 saveResult(weather, weatherElem);
             }
         }
     }
 
     private void saveResult(WeatherInfo weather, WeatherListArray weatherElem) {
-        weather.date = weatherElem.dt;
         weather.temperature = weatherElem.weatherMainData.temperature;
         weather.humidity = weatherElem.weatherMainData.humidity;
         weather.pressure = weatherElem.weatherMainData.pressure;

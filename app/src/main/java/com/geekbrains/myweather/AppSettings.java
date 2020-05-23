@@ -36,18 +36,7 @@ public class AppSettings implements Serializable {
     }
 
     private long getBaseToday(){
-        Date d=new Date();
-        DateFormat df=new SimpleDateFormat("yyyy.MM.dd 12:00:00", Locale.US);
-        String s=df.format(d);
-        df=new SimpleDateFormat("yyyy.MM.dd HH:mm:SS", Locale.US);
-        Date date;
-        try {
-            date=df.parse(s);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return d.getTime();
-        }
-        return date.getTime()/1000;
+        return Converter.getNoon(new Date().getTime()/1000);
     }
 
     public static AppSettings get() {
@@ -124,7 +113,7 @@ public class AppSettings implements Serializable {
     }
 
     public void setLocationInLatLng(LatLng latLng) {
-        location=Converter.latLngToLocation(latLng);
+        this.location=Converter.latLngToLocation(latLng);
     }
 
     public String getLocalization() {

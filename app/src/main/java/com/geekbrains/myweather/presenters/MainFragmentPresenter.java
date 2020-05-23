@@ -1,6 +1,7 @@
 package com.geekbrains.myweather.presenters;
 
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -26,12 +27,19 @@ import retrofit2.Response;
 
 public class MainFragmentPresenter extends BasePresenter<MainFragmentInterface> {
 
+    private static MainFragmentPresenter presenter;
     private WeatherHelper weatherHelper;
     private final float WIND_ALERT = 15.0f;
 
     public void onCreate() {
         initDatabase();
     }
+
+    public static MainFragmentPresenter get(){
+        if(presenter==null)presenter=new MainFragmentPresenter();
+        return presenter;
+    }
+
 
     private void initDatabase() {
         WeatherDao weatherDao = App
@@ -65,6 +73,7 @@ public class MainFragmentPresenter extends BasePresenter<MainFragmentInterface> 
         MainInformationData informationData = new MainInformationData();
         informationData.setCityNameValue(city);
         informationData.setImgUrl(Weather.getImgUrlFromString(weather.clouds));
+        Log.w("Weather",Converter.convertDateToString(date)+" "+weather.clouds);
         informationData.setTemperature(weather.getTemperatureString());
         informationData.setTemperatureValue(weather.temperature);
         view().setMainMenu(informationData);
@@ -117,11 +126,8 @@ public class MainFragmentPresenter extends BasePresenter<MainFragmentInterface> 
     }
 
     private void dataUpdater(@NonNull Response<WeatherRequestRestModel> response, String city) {
+        Log.w("Downoad result",String.valueOf(response.code()));
         if (response.body() != null && response.isSuccessful()) {
-            Location loc = new Location("fromCity");
-            loc.setLatitude(response.body().cityId.cordRestModel.lat);
-            loc.setLongitude(response.body().cityId.cordRestModel.lon);
-            AppSettings.get().setLocation(loc);
             weatherHelper.addCityWeather(response.body(), city);
             tryToFillCityInfoFromDao();
             foregroundWindAlert(response.body());

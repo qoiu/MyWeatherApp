@@ -35,7 +35,7 @@ public interface WeatherDao {
     @Query("SELECT * FROM (SELECT * FROM WeatherInfo WHERE date>=:today ORDER BY date DESC)GROUP BY city_name ORDER BY CASE WHEN :isAsc = 1 THEN city_name END ASC, CASE WHEN :isAsc = 0 THEN city_name END DESC ")
     List<WeatherInfo> getSortedCityName(boolean isAsc,Long today);
 
-    @Query("SELECT * FROM (SELECT * FROM WeatherInfo WHERE city_name=:city ORDER BY date DESC LIMIT 5) ORDER BY date;")
+    @Query("SELECT * FROM (SELECT * FROM WeatherInfo WHERE city_name=:city ORDER BY date DESC LIMIT 6) ORDER BY date;")
     List<WeatherInfo> getForecast(String city);
 
     @Query("SELECT * FROM (SELECT * FROM WeatherInfo WHERE city_name=:city AND date>=:today ORDER BY date DESC) ORDER BY date ASC LIMIT 1;")

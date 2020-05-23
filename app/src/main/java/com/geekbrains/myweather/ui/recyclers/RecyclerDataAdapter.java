@@ -41,6 +41,10 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         WeatherInfo posWeather =weatherList.get(position);
         holder.itemName.setText(Converter.convertDateToString(posWeather.date));
+        if(position==0){
+            holder.itemName.setText("Сейчас");
+            holder.itemName.setTextSize(16);
+        }
         holder.itemIco.setImageResource(Weather.getIcoFromString(posWeather.clouds));
         holder.itemTemperature.setText(posWeather.getTemperatureString());
         holder.itemHumidity.setText(String.valueOf(posWeather.humidity));

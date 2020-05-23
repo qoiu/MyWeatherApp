@@ -1,6 +1,7 @@
 package com.geekbrains.myweather;
 
 import android.location.Location;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -96,5 +97,6 @@ public class ExampleUnitTest {
     public void converterTest(){
         assertEquals(Converter.convertDateToString(1589792400),"18.05");
         assertEquals(Converter.getHour(1589792400),"12");
+        assertEquals(Converter.getNoon(1587612000),1587632400);
     }
 }
