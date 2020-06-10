@@ -10,10 +10,13 @@ public interface IOpenWeather {
     @GET("data/2.5/forecast")
     Call<WeatherRequestRestModel> loadWeather(@Query("q") String city,
                                               @Query("appid") String keyApi,
-                                              @Query("units") String units);
+                                              @Query("units") String units,
+                                              @Query("lang") String lang);
+
     @GET("data/2.5/forecast")
     Call<WeatherRequestRestModel> loadWeatherFromGeo(@Query("lat") double latitude,
                                                      @Query("lon") double longitude,
                                                      @Query("appid") String keyApi,
-                                                     @Query("units") String units);
+                                                     @Query("units") String units,
+                                                     @Query("lang") String lang);
 }

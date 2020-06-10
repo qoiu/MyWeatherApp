@@ -28,6 +28,7 @@ public class App extends Application {
                 DbWeather.class,
                 "weather_database")
                 .allowMainThreadQueries()
+                .fallbackToDestructiveMigration()
                 .build();
     }
 

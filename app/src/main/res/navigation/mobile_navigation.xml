@@ -30,7 +30,7 @@
 
     <fragment
         android:id="@+id/nav_settings"
-        android:name="com.geekbrains.myweather.ui.settings.Settings"
+        android:name="com.geekbrains.myweather.ui.settings.SettingsFragment"
         android:label="@string/menu_settings"
         tools:layout="@layout/fragment_settings" >
         <action
@@ -42,7 +42,7 @@
     </fragment>
 
     <fragment android:id="@+id/nav_map"
-        android:name="com.geekbrains.myweather.ui.map.Map"
+        android:name="com.geekbrains.myweather.ui.map.MapFragment"
         android:label="@string/menu_map"
         tools:layout="@layout/fragment_map">
         <action
@@ -53,7 +53,7 @@
             app:destination="@id/nav_cities" />
     </fragment>
     <fragment android:id="@+id/nav_cities"
-        android:name="com.geekbrains.myweather.ui.selection.CitySelection"
+        android:name="com.geekbrains.myweather.ui.selection.CitySelectionFragment"
         android:label="@string/menu_city"
         tools:layout="@layout/fragment_city_selection">
     </fragment>

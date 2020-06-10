@@ -15,13 +15,5 @@ public class WeatherListArray {
     @SerializedName("sys")public SysRestModel sysRestModel;
     @SerializedName("dt_txt")public String dtText;
 
-    public String getHour(){
-        DateFormat dateFormat = new SimpleDateFormat("HH", Locale.US);
-        return dateFormat.format(dt*1000);
-    }
 
-    public String getDate() {
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.US);
-        return dateFormat.format(dt*1000);
-    }
 }

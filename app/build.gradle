@@ -2,6 +2,11 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\qoiu\\app_weather.jks')
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
@@ -18,11 +23,23 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {
         targetCompatibility = "8"
         sourceCompatibility = "8"
+    }
+    flavorDimensions 'version'
+    productFlavors {
+        free {
+            dimension = 'version'
+            versionNameSuffix = '.free'
+        }
+        proConfig {
+            dimension = 'version'
+            versionNameSuffix = '.pro'
+        }
     }
 
 }
@@ -48,4 +65,5 @@ dependencies {
     implementation "android.arch.persistence.room:runtime:1.1.1"
     annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-auth:18.0.0'
 }

@@ -1,6 +1,6 @@
 package com.geekbrains.myweather.rest.entities;
 
-import com.geekbrains.myweather.SettingsSingleton;
+import com.geekbrains.myweather.AppSettings;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Locale;
@@ -16,7 +16,7 @@ public class WeatherMainData {
     @SerializedName("humidity")public int humidity;
 
     public String getTemperature() {
-        if(!SettingsSingleton.getInstance().isSettingInFahrenheit()){
+        if(!AppSettings.get().isSettingInFahrenheit()){
             return String.format(Locale.getDefault(), "%+.1f" +
                     "\u2103", temperature);
         }else {

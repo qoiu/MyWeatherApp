@@ -8,6 +8,7 @@ import java.util.Locale;
 
 public class Weather {
 
+    private static int screenWidth=1080;
 
     enum WeatherType {
         CLEAR, CLOUDS, CLOUDY2, RAIN, SNOW, STORM, UNKNOWN
@@ -25,12 +26,12 @@ public class Weather {
             R.mipmap.icons_unknown};
 
     private static String[] url={
-            "https://images.unsplash.com/photo-1494548162494-384bba4ab999?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80",
-            "https://images.unsplash.com/photo-1561634666-669fe33c3d0a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
-            "https://images.unsplash.com/photo-1558999266-d2f6674216fa?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1351&q=80",
-            "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=675&q=80",
-            "https://images.unsplash.com/photo-1576357852201-6f5791fe1619?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
-            "https://images.unsplash.com/photo-1562155618-e1a8bc2eb04f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1368&q=80"
+            "https://images.unsplash.com/photo-1494548162494-384bba4ab999?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w="+screenWidth+"&q=80",
+            "https://images.unsplash.com/photo-1561634666-669fe33c3d0a?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w="+screenWidth+"&q=80",
+            "https://images.unsplash.com/photo-1558999266-d2f6674216fa?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w="+screenWidth+"&q=80",
+            "https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w="+screenWidth+"&q=80",
+            "https://images.unsplash.com/photo-1576357852201-6f5791fe1619?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w="+screenWidth+"&q=80",
+            "https://images.unsplash.com/photo-1562155618-e1a8bc2eb04f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w="+screenWidth+"&q=80"
     };
 
     public static void setWindDirection(View view) {
@@ -57,10 +58,4 @@ public class Weather {
             return url[0];
         }
     }
-
-    static String convertDateToString(long date) {
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.US);
-        return dateFormat.format(date*1000);
-    }
-
 }

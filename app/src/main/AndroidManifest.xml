@@ -32,8 +32,9 @@
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-            <meta-data android:name="ApiKey" android:value="
-AIzaSyAnZDvRbs6bwClObhfhjqsb9_ode7yK7dg"/>
+            <meta-data
+                android:name="ApiKey"
+                android:value="@string/google_firebase_key" />
         </service>
     </application>
 
