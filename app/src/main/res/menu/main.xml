@@ -16,5 +16,11 @@
         android:icon="@drawable/ic_search_black_24dp"
         app:showAsAction="ifRoom"
         android:title="" />
+    <item
+        android:id="@+id/cheat_btn"
+        android:orderInCategory="20"
+        app:showAsAction="ifRoom"
+        android:title="Function"
+        android:visible="false"/>
 
 </menu>

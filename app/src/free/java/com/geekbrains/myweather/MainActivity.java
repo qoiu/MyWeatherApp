@@ -175,6 +175,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem search = menu.findItem(R.id.action_search);
+        if(BuildConfig.DEBUG) {
+            MenuItem cheat = menu.findItem(R.id.cheat_btn);
+            cheat.setVisible(true);
+            cheat.setOnMenuItemClickListener((v) -> {
+                Toast.makeText(this, "Some usefull stuff", Toast.LENGTH_SHORT).show();
+                return true;
+            });
+        }
         final SearchView searchText = (SearchView) search.getActionView();
         initAuthGoogleBtn();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);

@@ -1,5 +1,6 @@
 package com.geekbrains.myweather.presenters;
 
+
 import android.location.Location;
 import android.util.Log;
 

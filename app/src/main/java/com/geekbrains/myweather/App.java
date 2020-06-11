@@ -2,11 +2,13 @@ package com.geekbrains.myweather;
 
 
 import android.app.Application;
+import android.os.Build;
 
 import androidx.room.Room;
 
 import com.geekbrains.myweather.rest.dao.WeatherDao;
 import com.geekbrains.myweather.rest.database.DbWeather;
+import com.squareup.leakcanary.LeakCanary;
 
 public class App extends Application {
     private static App instance;
@@ -30,6 +32,11 @@ public class App extends Application {
                 .allowMainThreadQueries()
                 .fallbackToDestructiveMigration()
                 .build();
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            return;
+        }
+        LeakCanary.install(this);
+
     }
 
     public WeatherDao getWeatherDao() {
