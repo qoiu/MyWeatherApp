@@ -1,11 +1,6 @@
 package com.geekbrains.myweather;
 
-import android.location.Location;
-import android.util.Log;
 
-import com.google.android.gms.maps.model.LatLng;
-
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.text.DateFormat;
@@ -13,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -99,4 +94,5 @@ public class ExampleUnitTest {
         assertEquals(Converter.getHour(1589792400),"12");
         assertEquals(Converter.getNoon(1587612000),1587632400);
     }
+
 }

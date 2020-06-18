@@ -44,6 +44,7 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.BuildConfig;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private SignInButton signInButton;
 
     public static void showMainFragment(String query) {
-        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query,AppSettings.get().getToday());
+        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query, AppSettings.get().getToday());
         if (weather != null) {
             AppSettings.get().setLocationInLatLng(new LatLng(
                     weather.latitude,
@@ -175,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem search = menu.findItem(R.id.action_search);
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             MenuItem cheat = menu.findItem(R.id.cheat_btn);
             cheat.setVisible(true);
             cheat.setOnMenuItemClickListener((v) -> {
@@ -218,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
             Intent signInIntent = mGoogleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
         });
-        TextView logOff=findViewById(R.id.headerLogOffField);
+        TextView logOff = findViewById(R.id.headerLogOffField);
         logOff.setOnClickListener(v -> {
             mGoogleSignInClient.signOut()
                     .addOnCompleteListener(this, task -> {
@@ -256,15 +257,11 @@ public class MainActivity extends AppCompatActivity {
             signInButton.setVisibility(View.GONE);
             name.setText(account.getDisplayName());
             img.setVisibility(View.VISIBLE);
-            if (account.getPhotoUrl()!=null){
-                Picasso.get()
-                        .load(account.getPhotoUrl().toString())
-                        .transform(new CircleTransformation())
-                        .placeholder(R.mipmap.ic_launcher_round)
-                        .into(img);
-            }else{
-                img.setImageResource(R.mipmap.ic_launcher_round);
-            }
+            Picasso.get()
+                    .load(account.getPhotoUrl().toString())
+                    .transform(new CircleTransformation())
+                    .placeholder(R.mipmap.anonymous)
+                    .into(img);
             email.setVisibility(View.VISIBLE);
             email.setText(account.getEmail());
             logOff.setVisibility(View.VISIBLE);

@@ -2,6 +2,7 @@ package com.geekbrains.myweather.rest;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 public class OpenWeatherRepo {
     private static OpenWeatherRepo singleton = null;
@@ -26,6 +27,7 @@ public class OpenWeatherRepo {
         Retrofit adapter = new Retrofit.Builder()
                 .baseUrl("https://api.openweathermap.org/")
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
         return adapter.create(IOpenWeather.class);
     }

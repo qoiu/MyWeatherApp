@@ -57,7 +57,6 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
         setRecyclerView();
         Weather.setWindDirection(view);
         MainFragmentPresenter.get().bindView(this);
-        MainFragmentPresenter.get().onCreate();
     }
 
     private void setView(View view) {
@@ -87,7 +86,6 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        MainFragmentPresenter.get().firstRun();
         applySettings();
     }
 
