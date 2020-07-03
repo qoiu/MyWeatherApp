@@ -2,10 +2,11 @@ package com.geekbrains.myweather.rest.model;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import com.geekbrains.myweather.AppSettings;
+import com.geekbrains.myweather.model.AppSettings;
 import com.geekbrains.myweather.Weather;
 import java.util.Locale;
 
@@ -35,6 +36,8 @@ public class WeatherInfo {
     final static String CLOUDS = "clouds";
     final static String LATITUDE = "latitude";
     final static String LONGITUDE = "longitude";
+    @Ignore
+    private String title;
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = ID)
@@ -77,5 +80,13 @@ public class WeatherInfo {
 
     public String getWindSpeed() {
         return String.format(Locale.getDefault(), "%.1f %s", windSpeed,"м/c");
+    }
+
+    public String getTitle() {
+        return (title==null)?"":title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

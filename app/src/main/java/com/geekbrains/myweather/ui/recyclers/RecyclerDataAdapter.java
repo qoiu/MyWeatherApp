@@ -1,5 +1,6 @@
 package com.geekbrains.myweather.ui.recyclers;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,23 +10,21 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.geekbrains.myweather.App;
-import com.geekbrains.myweather.AppSettings;
-import com.geekbrains.myweather.Converter;
 import com.geekbrains.myweather.R;
 import com.geekbrains.myweather.Weather;
-import com.geekbrains.myweather.rest.entities.WeatherListArray;
-import com.geekbrains.myweather.rest.entities.WeatherRequestRestModel;
+import com.geekbrains.myweather.model.AppSettings;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapter.ViewHolder> {
     private List<WeatherInfo> weatherList;
+    String now;
+    Context context;
 
-    public RecyclerDataAdapter() {
-        weatherList=App.getInstance().getWeatherDao().getForecast(AppSettings.get().getCityName());
+    public RecyclerDataAdapter(String now) {
+        this.now = now;
+        //weatherList=App.getInstance().getWeatherDao().getForecast(AppSettings.get().getCityName());
     }
 
     @NonNull
@@ -33,17 +32,30 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_day_info, parent, false);
+        context=parent.getContext();
         return new ViewHolder(view);
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        WeatherInfo posWeather =weatherList.get(position);
-        holder.itemName.setText(Converter.convertDateToString(posWeather.date));
-        if(position==0){
-            holder.itemName.setText("Сейчас");
+        WeatherInfo posWeather = weatherList.get(position);
+       /* if(position==0){
+            holder.itemName.setText(now);
             holder.itemName.setTextSize(16);
+        }else */
+        String title = posWeather.getTitle();
+        holder.itemName.setText(title);
+        if (title.contains("\n")) {
+            holder.itemName.setTextSize(12);
+        } else {
+            holder.itemName.setTextSize(16);
+        }
+        long date=AppSettings.get().getToday();
+        long date2=posWeather.date;
+        if(posWeather.date >= AppSettings.get().getToday()){
+            holder.itemName.setTextColor(context.getResources().getColor(R.color.colorTextBasic));
+        }else {
+            holder.itemName.setTextColor(context.getResources().getColor(R.color.colorWhite));
         }
         holder.itemIco.setImageResource(Weather.getIcoFromString(posWeather.clouds));
         holder.itemTemperature.setText(posWeather.getTemperatureString());
@@ -64,6 +76,11 @@ public class RecyclerDataAdapter extends RecyclerView.Adapter<RecyclerDataAdapte
             holder.itemWindSpeed.setVisibility(View.GONE);
             holder.hintWind.setVisibility(View.GONE);
         }
+    }
+
+    public void update(List<WeatherInfo> weatherInfos) {
+        weatherList = weatherInfos;
+        notifyDataSetChanged();
     }
 
     @Override

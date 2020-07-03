@@ -7,4 +7,5 @@
     <color name="colorTextBasic">#4527A0</color>
     <color name="colorTextShadow">#ffffff</color>
     <color name="colorBackground">#337777ff</color>
+    <color name="colorTextInactive">#cccccc</color>
 </resources>

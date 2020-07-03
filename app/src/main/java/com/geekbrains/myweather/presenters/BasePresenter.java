@@ -15,6 +15,7 @@ public abstract class BasePresenter<V> {
 
     public void bindView(@NonNull V view) {
         this.view = new WeakReference<>(view);
+
     }
 
     public void unbindView() {

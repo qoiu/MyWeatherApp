@@ -51,4 +51,9 @@
     <string name="log_off">Log off</string>
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyATmGydZbz_aTf7o3AG3SUeQBlZ_JNIhKo</string>
     <string name="google_firebase_key" templateMergeStrategy="preserve" translatable="false">AIzaSyAnZDvRbs6bwClObhfhjqsb9_ode7yK7dg</string>
+    <string name="today">Сегодня</string>
+    <string name="tomorrow">Завтра</string>
+    <string name="days_3">3 дня</string>
+    <string name="days_5">5 дней</string>
+    <string name="now">Сейчас</string>
 </resources>

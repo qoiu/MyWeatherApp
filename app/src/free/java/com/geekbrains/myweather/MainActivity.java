@@ -34,6 +34,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
+import com.geekbrains.myweather.model.AppSettings;
+import com.geekbrains.myweather.presenters.MainFragmentPresenter;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -53,9 +55,10 @@ public class MainActivity extends AppCompatActivity {
     private static NavController navController;
     private GoogleSignInClient mGoogleSignInClient;
     private SignInButton signInButton;
+    private static MenuItem cheat;
 
     public static void showMainFragment(String query) {
-        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query,AppSettings.get().getToday());
+        WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query, AppSettings.get().getToday());
         if (weather != null) {
             AppSettings.get().setLocationInLatLng(new LatLng(
                     weather.latitude,
@@ -70,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static void navigate(int id) {
         navController.navigate(id);
+        boolean isMain=navController.getCurrentDestination().getId() == R.id.nav_home;
+        cheat.setVisible(isMain);
+
     }
 
     private BroadcastReceiver messageReceiver = new EventReceiver();
@@ -81,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Weather.setWindDirection(this.getBaseContext().getResources().getStringArray(R.array.windDirection));
         LocationModule.getInstance().setLocManager((LocationManager) getSystemService(LOCATION_SERVICE));
         LocationModule.getInstance().setFromActivity(this);
         initNotificationChannel();
@@ -175,6 +182,15 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem search = menu.findItem(R.id.action_search);
+        Log.e("vers",String.valueOf(BuildType.isDebugMode()));
+        if (BuildType.isDebugMode()) {
+            cheat = menu.findItem(R.id.cheat_btn);
+            cheat.setVisible(true);
+            cheat.setOnMenuItemClickListener((v) -> {
+                MainFragmentPresenter.get().showCheat();
+                return true;
+            });
+        }
         final SearchView searchText = (SearchView) search.getActionView();
         initAuthGoogleBtn();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
@@ -210,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
             Intent signInIntent = mGoogleSignInClient.getSignInIntent();
             startActivityForResult(signInIntent, RC_SIGN_IN);
         });
-        TextView logOff=findViewById(R.id.headerLogOffField);
+        TextView logOff = findViewById(R.id.headerLogOffField);
         logOff.setOnClickListener(v -> {
             mGoogleSignInClient.signOut()
                     .addOnCompleteListener(this, task -> {
@@ -248,15 +264,11 @@ public class MainActivity extends AppCompatActivity {
             signInButton.setVisibility(View.GONE);
             name.setText(account.getDisplayName());
             img.setVisibility(View.VISIBLE);
-            if (account.getPhotoUrl()!=null){
-                Picasso.get()
-                        .load(account.getPhotoUrl().toString())
-                        .transform(new CircleTransformation())
-                        .placeholder(R.mipmap.ic_launcher_round)
-                        .into(img);
-            }else{
-                img.setImageResource(R.mipmap.ic_launcher_round);
-            }
+            Picasso.get()
+                    .load(account.getPhotoUrl().toString())
+                    .transform(new CircleTransformation())
+                    .placeholder(R.mipmap.anonymous)
+                    .into(img);
             email.setVisibility(View.VISIBLE);
             email.setText(account.getEmail());
             logOff.setVisibility(View.VISIBLE);
@@ -279,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        MainFragmentPresenter.get().unbindView();
         unregisterReceiver(messageReceiver);
     }
 }

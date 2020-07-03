@@ -1,11 +1,5 @@
 package com.geekbrains.myweather;
 
-import android.view.View;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-
 public class Weather {
 
     private static int screenWidth=1080;
@@ -34,8 +28,8 @@ public class Weather {
             "https://images.unsplash.com/photo-1562155618-e1a8bc2eb04f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w="+screenWidth+"&q=80"
     };
 
-    public static void setWindDirection(View view) {
-        windDirection = view.getResources().getStringArray(R.array.windDirection);
+    public static void setWindDirection(String[] windDirection) {
+        Weather.windDirection = windDirection;
     }
 
     public static String getWindDirection(int ang){

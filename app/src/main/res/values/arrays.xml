@@ -14,7 +14,7 @@
         <item>Volgograd</item>
     </string-array>
     <string-array name="windDirection">
-        <item>C</item>
+        <item>С</item>
         <item>C-В</item>
         <item>В</item>
         <item>Ю-В</item>

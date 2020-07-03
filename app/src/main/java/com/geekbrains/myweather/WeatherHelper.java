@@ -1,12 +1,11 @@
 package com.geekbrains.myweather;
 
+import com.geekbrains.myweather.model.AppSettings;
 import com.geekbrains.myweather.rest.dao.WeatherDao;
 import com.geekbrains.myweather.rest.entities.WeatherListArray;
 import com.geekbrains.myweather.rest.entities.WeatherRequestRestModel;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.util.Date;
 
 public class WeatherHelper {
     private final WeatherDao weatherDao;
@@ -15,37 +14,29 @@ public class WeatherHelper {
         this.weatherDao = weatherDao;
     }
 
-    private WeatherInfo getWeatherInfo(String city) {
-        WeatherInfo weatherInfo = weatherDao.getWeather(city, AppSettings.get().getToday());
+    private WeatherInfo getWeatherInfo(String city,long dt) {
+        WeatherInfo weatherInfo = weatherDao.getWeather(city,dt);
         if (weatherInfo != null) {
             return weatherInfo;
         }
         return new WeatherInfo();
     }
-
-    public void addCityWeather(WeatherRequestRestModel body, String city) {
-        WeatherInfo weather = getWeatherInfo(city);
-        weather.cityName = body.cityId.name;
-        AppSettings.get().setCityName(weather.cityName);
-        weather.latitude = body.cityId.cordRestModel.lat;
-        weather.longitude = body.cityId.cordRestModel.lon;
-        AppSettings.get().setLocationInLatLng(new LatLng(weather.latitude,weather.longitude));
-        weather.date = body.listArray[0].dt;
-        long today = 0;
-        if(!Converter.getHour(weather.date).equals("12")){
-            today = weather.date;
-            AppSettings.get().setToday(today);
-            saveResult(weather,body.listArray[0]);
-        }
+    /**
+     * 3 часа - 10800
+     */
+    public void addCityWeather(WeatherRequestRestModel body) {
+        String city = body.cityId.name;
+        AppSettings.get().setCityName(city);
+        float lat = body.cityId.cordRestModel.lat;
+        float lon = body.cityId.cordRestModel.lon;
+        AppSettings.get().setLocationInLatLng(new LatLng(lat,lon));
+        AppSettings.get().setToday(body.listArray[0].dt);
         for (WeatherListArray weatherElem : body.listArray) {
-            if (Converter.isNoon(weatherElem.dt)) {
-               if(today==0) {
-                    today=weatherElem.dt;
-                    AppSettings.get().setToday(today);
-                }
-                weather.date = Converter.getNoon(weatherElem.dt);
-                saveResult(weather, weatherElem);
-            }
+            WeatherInfo weather = getWeatherInfo(city,weatherElem.dt);
+            weather.cityName=city;
+            weather.longitude=lon;
+            weather.latitude=lat;
+            saveResult(weather, weatherElem);
         }
     }
 
@@ -56,10 +47,13 @@ public class WeatherHelper {
         weather.windSpeed = weatherElem.windRestModel.speed;
         weather.windDirection = weatherElem.windRestModel.deg;
         weather.clouds = weatherElem.weatherExtraData[0].main;
-        if (weatherDao.getWeather(weather.cityName, weather.date) != null) {
+        WeatherInfo weatherInfo=weatherDao.getWeather(weather.cityName, weather.date);
+        if (weather.id!= 0) {
+            weather.id=weatherInfo.id;
             weatherDao.updateWeather(weather);
             return;
         }
+        weather.date = weatherElem.dt;
         weatherDao.insertWeather(weather);
     }
 

@@ -16,7 +16,7 @@ import com.geekbrains.myweather.App;
 import com.geekbrains.myweather.LocationModule;
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.R;
-import com.geekbrains.myweather.AppSettings;
+import com.geekbrains.myweather.model.AppSettings;
 import com.geekbrains.myweather.Weather;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.google.android.gms.maps.CameraUpdate;

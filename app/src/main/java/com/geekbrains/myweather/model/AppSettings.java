@@ -1,22 +1,11 @@
-package com.geekbrains.myweather;
+package com.geekbrains.myweather.model;
 
 import android.location.Location;
-import android.os.Build;
-import android.util.Log;
-
-import androidx.annotation.RequiresApi;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 public class AppSettings implements Serializable {
     private static AppSettings instance;
@@ -31,12 +20,17 @@ public class AppSettings implements Serializable {
     private String localization;
     private long today;
 
+    /**
+     * long today - is noon by default
+     */
     private AppSettings() {
         today= getBaseToday();
     }
 
     private long getBaseToday(){
-        return Converter.getNoon(new Date().getTime()/1000);
+        long now=new Date().getTime()/1000;
+        int hour=(int)Math.floor(Integer.parseInt(ConverterDate.extract(now,"HH"))/3f)*3;
+        return ConverterDate.getDefineHour(new Date().getTime()/1000,hour);
     }
 
     public static AppSettings get() {
@@ -45,8 +39,6 @@ public class AppSettings implements Serializable {
         }
         return instance;
     }
-
-
 
     public boolean isInternet() {
         return internet;
@@ -113,7 +105,7 @@ public class AppSettings implements Serializable {
     }
 
     public void setLocationInLatLng(LatLng latLng) {
-        this.location=Converter.latLngToLocation(latLng);
+        this.location= ConverterLocation.latLngToLocation(latLng);
     }
 
     public String getLocalization() {

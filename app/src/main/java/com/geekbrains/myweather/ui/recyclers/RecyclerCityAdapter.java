@@ -9,8 +9,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.geekbrains.myweather.AppSettings;
-import com.geekbrains.myweather.Converter;
+import com.geekbrains.myweather.model.AppSettings;
+import com.geekbrains.myweather.model.ConverterDate;
 import com.geekbrains.myweather.R;
 import com.geekbrains.myweather.Weather;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
@@ -51,7 +51,7 @@ public class RecyclerCityAdapter extends RecyclerView.Adapter<RecyclerCityAdapte
         holder.cityNameText.setText(cities.get(position).cityName);
         holder.cityTemperature.setText(cities.get(position).getTemperatureString());
         holder.cityWeatherImg.setImageResource(Weather.getIcoFromString(cities.get(position).clouds));
-        holder.cityDate.setText(Converter.convertDateToString(cities.get(position).date));
+        holder.cityDate.setText(ConverterDate.extract(cities.get(position).date,"dd.MM"));
         highlightSelectedPosition(holder, position);
     }
 

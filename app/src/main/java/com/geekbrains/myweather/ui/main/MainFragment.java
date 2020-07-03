@@ -5,10 +5,12 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,26 +22,42 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.geekbrains.myweather.App;
 import com.geekbrains.myweather.MainActivity;
 import com.geekbrains.myweather.MainInformationData;
 import com.geekbrains.myweather.R;
-import com.geekbrains.myweather.ui.recyclers.RecyclerDataAdapter;
-import com.geekbrains.myweather.AppSettings;
 import com.geekbrains.myweather.ThermometerView;
 import com.geekbrains.myweather.Weather;
+import com.geekbrains.myweather.model.AppSettings;
 import com.geekbrains.myweather.presenters.MainFragmentPresenter;
+import com.geekbrains.myweather.presenters.forecastformat.ForecastFiveDays;
+import com.geekbrains.myweather.presenters.forecastformat.ForecastFormat;
+import com.geekbrains.myweather.presenters.forecastformat.ForecastThreeDays;
+import com.geekbrains.myweather.presenters.forecastformat.ForecastToday;
+import com.geekbrains.myweather.presenters.forecastformat.ForecastTomorrow;
+import com.geekbrains.myweather.rest.model.WeatherInfo;
+import com.geekbrains.myweather.ui.recyclers.RecyclerDataAdapter;
+import com.squareup.leakcanary.RefWatcher;
 import com.squareup.picasso.Picasso;
+
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+
+import io.reactivex.SingleObserver;
 
 public class MainFragment extends Fragment implements MainFragmentInterface {
     private TextView cityName, cityTemperature;
     private TextView itemPressure, itemHumidity, itemWind, itemWindDirection;
     private TextView itemHintPressure, itemHintHumidity, itemHintWind;
+    private TextView testView;//DELETE/
+    private RecyclerDataAdapter recyclerDataAdapter;
     private ProgressBar progressBar;
     private ImageView imageMain;
     private RecyclerView recyclerView;
     private ThermometerView thermometerView;
     private SharedPreferences defaultPrefs;
+    private SingleObserver<ForecastFormat> formatObserver;
     private int notify_id = 1000;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -52,12 +70,15 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
         super.onViewCreated(view, savedInstanceState);
         setView(view);
         defaultPrefs = requireActivity().getSharedPreferences("myPref", Context.MODE_PRIVATE);
-        if(AppSettings.get().getCityName().equals(""))
-        fillViewFromDefPref();
+        if (AppSettings.get().getCityName().equals(""))
+            fillViewFromDefPref();
         setRecyclerView();
-        Weather.setWindDirection(view);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         MainFragmentPresenter.get().bindView(this);
-        MainFragmentPresenter.get().onCreate();
     }
 
     private void setView(View view) {
@@ -73,21 +94,32 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
         imageMain = view.findViewById(R.id.imageMain);
         recyclerView = view.findViewById(R.id.recyclerViewMain);
         thermometerView = view.findViewById(R.id.mainThermometerView);
-        progressBar=view.findViewById(R.id.progressBar);
+        progressBar = view.findViewById(R.id.progressBar);
+        testView = view.findViewById(R.id.testView);
+        testView.setMovementMethod(new ScrollingMovementMethod());
+        ((Button)view.findViewById(R.id.btnForecast1today))
+                .setOnClickListener((v)->formatObserver.onSuccess(new ForecastToday()));
+        ((Button)view.findViewById(R.id.btnForecast2tomorrow))
+                .setOnClickListener((v)->formatObserver.onSuccess(new ForecastTomorrow()));
+        ((Button)view.findViewById(R.id.btnForecast3days3))
+                .setOnClickListener((v)->formatObserver.onSuccess(new ForecastThreeDays()));
+        ((Button)view.findViewById(R.id.btnForecast4days5))
+                .setOnClickListener((v)->formatObserver.onSuccess(new ForecastFiveDays()));
+       progressBar = view.findViewById(R.id.progressBar);
     }
 
     private void setRecyclerView() {
-        RecyclerDataAdapter recyclerDataAdapter = new RecyclerDataAdapter();
+        recyclerDataAdapter = new RecyclerDataAdapter(requireContext().getResources().getString(R.string.now));
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(recyclerDataAdapter);
+
     }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        MainFragmentPresenter.get().firstRun();
         applySettings();
     }
 
@@ -105,7 +137,7 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
     }
 
     private void fillViewFromDefPref() {
-        MainInformationData informationData=new MainInformationData();
+        MainInformationData informationData = new MainInformationData();
         String city = defaultPrefs.getString("name", "Moscow");
         AppSettings.get().setCityName(city);
         informationData.setCityNameValue(city);
@@ -113,6 +145,11 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
         informationData.setImgUrl(defaultPrefs.getString("sky", Weather.getImgUrlFromString("CLEAR")));
         informationData.setTemperatureValue(defaultPrefs.getFloat("temperatureFloat", 0));
         setMainMenu(informationData);
+    }
+
+    @Override
+    public void setReactForecast(SingleObserver<ForecastFormat> formatObserver) {
+        this.formatObserver=formatObserver;
     }
 
     @Override
@@ -142,10 +179,10 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
     @Override
     public void notifyWindAlert(String city, String date, float wind) {
         String msg = String.format(Locale.getDefault(),
-                getResources().getString(R.string.strong_wind_warning),date, wind);
+                getResources().getString(R.string.strong_wind_warning), date, wind);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(requireActivity(), "2")
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(city+": ")
+                .setContentTitle(city + ": ")
                 .setContentText(msg);
         NotificationManager notificationManager =
                 (NotificationManager) requireActivity().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -154,9 +191,31 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
     }
 
     @Override
-    public void updateData() {
+    public void updateData(List<WeatherInfo> weatherInfo) {
+        Log.w("Update", new Date().toString());
+        recyclerDataAdapter.update(weatherInfo);
         progressBar.setVisibility(View.GONE);
-        setRecyclerView();
+        testUpdate(weatherInfo);
+    }
+
+    public void showCheat(boolean visibility){
+        testView.setVisibility(visibility?View.VISIBLE:View.GONE);
+    }
+
+    private void testUpdate(List<WeatherInfo> weatherInfos) {
+        List<WeatherInfo> weatherInfos1 = App.getModel().getUpdatedListWeatherInfoTest();
+        StringBuilder str = new StringBuilder("Main:\n");
+        MainInformationData inf=App.getModel().loadData();
+        str.append(inf.getCityNameValue()).append(" ").append(inf.getTemperatureValue()).append("\n");
+        str.append("Base: \n");
+        for (WeatherInfo weather : weatherInfos) {
+            str.append(new Date(weather.date * 1000).toString()).append(" - ").append(weather.date).append(" - ").append(weather.temperature).append("\n");
+        }
+        str.append("Full:\n");
+        for (WeatherInfo weather : weatherInfos1) {
+            str.append(new Date(weather.date * 1000).toString()).append(" - ").append(weather.date).append(" - ").append(weather.temperature).append("\n");
+        }
+        testView.setText(str.toString());
     }
 
     @Override
@@ -168,7 +227,7 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
                 informationData.getImgUrl()
         };
         SharedPreferences.Editor editor = defaultPrefs.edit();
-        for(int i=0;i<keys.length;i++){
+        for (int i = 0; i < keys.length; i++) {
             editor.putString(keys[i], values[i]);
         }
         editor.putFloat("temperatureFloat", informationData.getTemperatureValue());
@@ -179,5 +238,12 @@ public class MainFragment extends Fragment implements MainFragmentInterface {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         MainFragmentPresenter.get().unbindView();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = App.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 }
