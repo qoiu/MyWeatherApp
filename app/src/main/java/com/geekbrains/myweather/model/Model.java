@@ -1,9 +1,14 @@
-package com.geekbrains.myweather;
+package com.geekbrains.myweather.model;
 
 
 import android.location.Location;
 import android.util.Log;
 
+import com.geekbrains.myweather.App;
+import com.geekbrains.myweather.LocationModule;
+import com.geekbrains.myweather.MainInformationData;
+import com.geekbrains.myweather.Weather;
+import com.geekbrains.myweather.WeatherHelper;
 import com.geekbrains.myweather.rest.OpenWeatherRepo;
 import com.geekbrains.myweather.rest.dao.WeatherDao;
 import com.geekbrains.myweather.rest.entities.WeatherRequestRestModel;
@@ -14,6 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -21,16 +30,23 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
 
+@Module
 public class Model {
 
     private WeatherHelper weatherHelper;
-    private final float WIND_ALERT = 15.0f;
 
     public Model() {
         initDatabase();
     }
 
-    private List<Observer> observerList = new ArrayList<>();
+    @Provides
+    @Singleton
+    public Model getModel() {
+        return this;
+    }
+
+    List<Observer> observerList = new ArrayList<>();
+
 
     private void initDatabase() {
         WeatherDao weatherDao = App
@@ -66,6 +82,7 @@ public class Model {
         }
     }
 
+    @Provides
     public MainInformationData loadData() {
         String city = AppSettings.get().getCityName();
         long date = AppSettings.get().getToday();
@@ -76,13 +93,14 @@ public class Model {
         MainInformationData informationData = new MainInformationData();
         informationData.setCityNameValue(city);
         informationData.setImgUrl(Weather.getImgUrlFromString(weather.clouds));
-        Log.w("Weather", Converter.convertDateToString(date) + " " + weather.clouds);
+        Log.w("Weather", ConverterDate.extract(date, "dd.MM") + " " + weather.clouds);
         informationData.setTemperature(weather.getTemperatureString());
         informationData.setTemperatureValue(weather.temperature);
         return informationData;
     }
 
-    private MainInformationData fillFromSingleton() {
+    @Provides
+    public MainInformationData fillFromSingleton() {
         MainInformationData informationData = new MainInformationData();
         informationData.setCityNameValue(AppSettings.get().getCityName());
         informationData.setTemperatureValue(0);
@@ -95,8 +113,8 @@ public class Model {
         Observable<Integer> observable = OpenWeatherRepo.getSingleton().getAPI().loadWeatherFromGeo(loc.getLatitude(), loc.getLongitude(),
                 "f3b8d2a726a6a983d8606e27c29b9566", "metric",
                 AppSettings.get().getLocalization()).map(response -> {
-                String city = LocationModule.getInstance().getCityByLoc(loc);
-                dataUpdater(response, city);
+            String city = LocationModule.getInstance().getCityByLoc(loc);
+            dataUpdater(response, city);
             return response.code();
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
         for (Observer observer : observerList) {
@@ -104,23 +122,23 @@ public class Model {
         }
     }
 
-
-    private void updateWeatherData(final String city) {
-       Observable<Integer> observable = OpenWeatherRepo.getSingleton().getAPI().loadWeather(city.toLowerCase(),
+    public void updateWeatherData(final String city) {
+        Observable<Integer> observable = OpenWeatherRepo.getSingleton().getAPI().loadWeather(city.toLowerCase(),
                 "f3b8d2a726a6a983d8606e27c29b9566", "metric",
                 AppSettings.get().getLocalization()).map(response -> {
-                dataUpdater(response, city);
+            dataUpdater(response, city);
             return response.code();
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+
         for (Observer observer : observerList) {
             observable.subscribe(observer);
         }
     }
 
     private void dataUpdater(@NonNull Response<WeatherRequestRestModel> response, String city) {
-        Log.w("Downoad result", String.valueOf(response.code()));
+        Log.w("Download result", String.valueOf(response.code()));
         if (response.body() != null && response.isSuccessful()) {
-            weatherHelper.addCityWeather(response.body(), city);
+            weatherHelper.addCityWeather(response.body());
             loadData();
         }
     }
@@ -129,12 +147,13 @@ public class Model {
         observerList.add(observer);
     }
 
-    public  Map<String, Float> getWindAlert(float windAlert) {
+    @Provides
+    public Map<String, Float> getWindAlert(float windAlert) {
         Map<String, Float> maxWind = new HashMap<>();
-        List<WeatherInfo> forecast=App.getInstance().getWeatherDao().getForecast(AppSettings.get().getCityName());
-        for (WeatherInfo weather : forecast ) {
+        List<WeatherInfo> forecast = App.getInstance().getWeatherDao().getForecast(AppSettings.get().getCityName());
+        for (WeatherInfo weather : forecast) {
             if (weather.windSpeed > windAlert) {
-                String date = Converter.convertDateToString(weather.date);
+                String date = ConverterDate.extract(weather.date, "dd.MM");
                 if (maxWind.get(date) == null) {
                     maxWind.put(date, weather.windSpeed);
                 } else {
@@ -143,5 +162,16 @@ public class Model {
             }
         }
         return maxWind;
+    }
+
+    @Provides
+    public List<WeatherInfo> getUpdatedListWeatherInfo() {
+        return App.getInstance().getWeatherDao().getForecastFromNow(AppSettings.get().getCityName(),
+                ConverterDate.getDefineHour(AppSettings.get().getToday(), 0));
+    }
+
+    @Provides
+    public List<WeatherInfo> getUpdatedListWeatherInfoTest() {
+        return App.getInstance().getWeatherDao().getForecastTest(AppSettings.get().getCityName());
     }
 }

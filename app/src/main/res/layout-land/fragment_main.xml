@@ -71,6 +71,41 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/mainLayout" />
 
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toogleGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorBackground"
+
+        app:layout_constraintBottom_toTopOf="@+id/recyclerViewMain" >
+        <Button
+            android:id="@+id/btnForecast1today"
+            style="@style/MaterialMainBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/today"/>
+        <Button
+            android:id="@+id/btnForecast2tomorrow"
+            style="@style/MaterialMainBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/tomorrow"/>
+        <Button
+            android:id="@+id/btnForecast3days3"
+            style="@style/MaterialMainBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/days_3"/>
+        <Button
+            android:id="@+id/btnForecast4days5"
+            style="@style/MaterialMainBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/days_5"/>
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
     <LinearLayout
         android:id="@+id/mainLayout"
         android:layout_width="300dp"
@@ -149,5 +184,17 @@
         app:layout_constraintEnd_toEndOf="@+id/recyclerViewMain"
         app:layout_constraintStart_toStartOf="@+id/recyclerViewMain"
         app:layout_constraintTop_toTopOf="@+id/recyclerViewMain"/>
+
+    <TextView
+        android:id="@+id/testView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        android:scrollbars="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/mainLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageMain" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

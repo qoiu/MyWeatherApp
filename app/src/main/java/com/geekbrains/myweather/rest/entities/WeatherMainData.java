@@ -1,6 +1,6 @@
 package com.geekbrains.myweather.rest.entities;
 
-import com.geekbrains.myweather.AppSettings;
+import com.geekbrains.myweather.model.AppSettings;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Locale;

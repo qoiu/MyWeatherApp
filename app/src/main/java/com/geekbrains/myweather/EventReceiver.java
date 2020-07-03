@@ -11,6 +11,8 @@ import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
+import com.geekbrains.myweather.model.AppSettings;
+
 
 public class EventReceiver extends BroadcastReceiver {
     private int messageId = 1000;

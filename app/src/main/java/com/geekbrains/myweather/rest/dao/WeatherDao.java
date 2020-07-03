@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.geekbrains.myweather.rest.entities.WeatherListArray;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 @Dao
 public interface WeatherDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertWeather(WeatherInfo weatherInfo);
 
     @Update
@@ -37,6 +36,14 @@ public interface WeatherDao {
 
     @Query("SELECT * FROM (SELECT * FROM WeatherInfo WHERE city_name=:city ORDER BY date DESC LIMIT 6) ORDER BY date;")
     List<WeatherInfo> getForecast(String city);
+
+
+    @Query("SELECT * FROM (SELECT * FROM WeatherInfo WHERE city_name=:city AND date>=:now ORDER BY date ASC) ORDER BY date;")
+    List<WeatherInfo> getForecastFromNow(String city,long now);
+
+
+    @Query("SELECT * FROM (SELECT * FROM WeatherInfo WHERE city_name=:city ORDER BY date DESC) ORDER BY date;")
+    List<WeatherInfo> getForecastTest(String city);
 
     @Query("SELECT * FROM (SELECT * FROM WeatherInfo WHERE city_name=:city AND date>=:today ORDER BY date DESC) ORDER BY date ASC LIMIT 1;")
     WeatherInfo getCity(String city,Long today);

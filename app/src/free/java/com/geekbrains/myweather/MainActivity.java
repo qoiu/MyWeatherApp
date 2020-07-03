@@ -34,6 +34,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
+import com.geekbrains.myweather.model.AppSettings;
+import com.geekbrains.myweather.presenters.MainFragmentPresenter;
 import com.geekbrains.myweather.rest.model.WeatherInfo;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -44,7 +46,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.BuildConfig;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private static NavController navController;
     private GoogleSignInClient mGoogleSignInClient;
     private SignInButton signInButton;
+    private static MenuItem cheat;
 
     public static void showMainFragment(String query) {
         WeatherInfo weather = App.getInstance().getWeatherDao().getWeather(query, AppSettings.get().getToday());
@@ -71,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static void navigate(int id) {
         navController.navigate(id);
+        boolean isMain=navController.getCurrentDestination().getId() == R.id.nav_home;
+        cheat.setVisible(isMain);
+
     }
 
     private BroadcastReceiver messageReceiver = new EventReceiver();
@@ -82,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Weather.setWindDirection(this.getBaseContext().getResources().getStringArray(R.array.windDirection));
         LocationModule.getInstance().setLocManager((LocationManager) getSystemService(LOCATION_SERVICE));
         LocationModule.getInstance().setFromActivity(this);
         initNotificationChannel();
@@ -176,11 +182,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem search = menu.findItem(R.id.action_search);
-        if (BuildConfig.DEBUG) {
-            MenuItem cheat = menu.findItem(R.id.cheat_btn);
+        Log.e("vers",String.valueOf(BuildType.isDebugMode()));
+        if (BuildType.isDebugMode()) {
+            cheat = menu.findItem(R.id.cheat_btn);
             cheat.setVisible(true);
             cheat.setOnMenuItemClickListener((v) -> {
-                Toast.makeText(this, "Some usefull stuff", Toast.LENGTH_SHORT).show();
+                MainFragmentPresenter.get().showCheat();
                 return true;
             });
         }
@@ -284,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        MainFragmentPresenter.get().unbindView();
         unregisterReceiver(messageReceiver);
     }
 }

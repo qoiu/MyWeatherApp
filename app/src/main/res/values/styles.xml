@@ -64,4 +64,10 @@
         <item name="android:layout_height">35dp</item>
     </style>
 
+    <style name="MaterialMainBtn" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="colorOnSecondary">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/colorTextShadow</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
 </resources>

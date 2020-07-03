@@ -19,8 +19,9 @@
     <item
         android:id="@+id/cheat_btn"
         android:orderInCategory="20"
+        android:title="cheat"
+        android:icon="@drawable/ic_settings_black_24dp"
         app:showAsAction="ifRoom"
-        android:title="Function"
         android:visible="false"/>
 
 </menu>

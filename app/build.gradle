@@ -21,7 +21,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "Boolean", "DEBUG_MODE", "true"
+            jniDebuggable = true
+            renderscriptDebuggable = true
+            signingConfig signingConfigs.debug
+        }
         release {
+            buildConfigField "Boolean", "DEBUG_MODE", "false"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
@@ -42,6 +49,9 @@ android {
             versionNameSuffix = '.pro'
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 
 }
 
@@ -57,21 +67,37 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'com.google.firebase:firebase-messaging:20.1.6'
     implementation 'com.google.firebase:firebase-analytics:17.4.0'
-    testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     implementation 'com.squareup.retrofit2:retrofit:2.8.1'
     implementation 'com.squareup.retrofit2:converter-gson:2.8.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation "androidx.preference:preference:1.1.1"
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
+    implementation 'androidx.preference:preference:1.1.1'
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5'
+    debugImplementation 'com.squareup.leakcanary:leakcanary-support-fragment:1.6.2'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
 
     implementation 'io.reactivex.rxjava2:rxjava:2.2.6'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.8.2'
 
+    testImplementation 'junit:junit:4.13'
+    testImplementation 'org.mockito:mockito-core:3.1.0'
+    testImplementation 'org.powermock:powermock-api-mockito2:1.7.4'
+
+    implementation 'com.android.support:support-annotations:28.0.0'
+
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:3.3.0'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'junit:junit:4.13'
+    androidTestImplementation 'org.mockito:mockito-android:3.1.0'
+
+    implementation 'com.google.dagger:dagger:2.10'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.10'
+    testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.10'
+    androidTestAnnotationProcessor 'com.google.dagger:dagger-compiler:2.10'
 }
